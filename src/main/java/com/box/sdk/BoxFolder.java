@@ -479,6 +479,18 @@ public class BoxFolder extends BoxItem implements Iterable<BoxItem.Info> {
     }
 
     /**
+     * Deletes this file from all collections.
+     * @see    <a href="https://docs.box.com/reference#add-or-delete-items-from-a-collection">API referense</a>
+     */
+    public void removeFromCollection() {
+        URL url = FOLDER_INFO_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxJSONRequest request = new BoxJSONRequest(this.getAPI(), url, "PUT");
+        JsonArray array = new JsonArray();
+        request.setBody(new JsonObject().add("collections", array).toString());
+        request.send();
+    }
+
+    /**
      * Contains information about a BoxFolder.
      */
     public class Info extends BoxItem.Info {

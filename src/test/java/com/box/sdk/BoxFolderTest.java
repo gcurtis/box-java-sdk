@@ -196,6 +196,29 @@ public class BoxFolderTest {
     }
 
     @Test
+    @Category(UnitTest.class)
+    public void removeFromCollectionSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setBaseURL("https://api.box.com/2.0/");
+        api.setRequestInterceptor(new JSONRequestInterceptor() {
+            @Override
+            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+                assertEquals("https://api.box.com/2.0/folders/0", request.getUrl().toString());
+                assertEquals("{\"collections\":[]}", json.toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{}";
+                    }
+                };
+            }
+        });
+
+        BoxFolder folder = new BoxFolder(api, "0");
+        folder.removeFromCollection();
+    }
+
+    @Test
     @Category(IntegrationTest.class)
     public void creatingAndDeletingFolderSucceeds() {
         BoxAPIConnection api = new BoxAPIConnection(TestConfig.getAccessToken());

@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Date;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyLong;
@@ -29,7 +30,32 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import com.eclipsesource.json.JsonObject;
+
 public class BoxFileTest {
+    @Test
+    @Category(UnitTest.class)
+    public void removeFromCollectionSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setBaseURL("https://api.box.com/2.0/");
+        api.setRequestInterceptor(new JSONRequestInterceptor() {
+            @Override
+            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+                assertEquals("https://api.box.com/2.0/files/0", request.getUrl().toString());
+                assertEquals("{\"collections\":[]}", json.toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{}";
+                    }
+                };
+            }
+        });
+
+        BoxFile file = new BoxFile(api, "0");
+        file.removeFromCollections();
+    }
+
     @Test
     @Category(IntegrationTest.class)
     public void uploadAndDownloadFileSucceeds() throws IOException {
@@ -449,7 +475,7 @@ public class BoxFileTest {
 
         Metadata check1 = uploadedFile.getMetadata();
         Assert.assertNotNull(check1);
-        Assert.assertEquals("bar", check1.get("/foo"));
+        assertEquals("bar", check1.get("/foo"));
 
         uploadedFile.delete();
     }
@@ -468,13 +494,13 @@ public class BoxFileTest {
 
         Metadata check1 = uploadedFile.getMetadata();
         Assert.assertNotNull(check1);
-        Assert.assertEquals("bar", check1.get("/foo"));
+        assertEquals("bar", check1.get("/foo"));
 
         uploadedFile.updateMetadata(check1.replace("/foo", "baz"));
 
         Metadata check2 = uploadedFile.getMetadata();
         Assert.assertNotNull(check2);
-        Assert.assertEquals("baz", check2.get("/foo"));
+        assertEquals("baz", check2.get("/foo"));
 
         uploadedFile.delete();
     }
