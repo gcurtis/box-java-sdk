@@ -108,6 +108,13 @@ public abstract class BoxItem extends BoxResource {
         BoxSharedLink.Permissions permissions);
 
     /**
+     * Deletes this file from all collections.
+     * @see    <a href="https://docs.box.com/reference#add-or-delete-items-from-a-collection">API referense</a>
+     * @return Info about item deleted from collections.
+     */
+    public abstract BoxItem.Info removeFromCollections();
+
+    /**
      * Gets information about this item.
      * @return info about this item.
      */

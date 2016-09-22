@@ -217,7 +217,7 @@ public class BoxFolderTest {
         });
 
         BoxFolder folder = new BoxFolder(api, "0");
-        folder.removeFromCollection();
+        folder.removeFromCollections();
     }
 
     @Test

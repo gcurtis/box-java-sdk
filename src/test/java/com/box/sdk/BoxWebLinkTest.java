@@ -4,13 +4,39 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import com.eclipsesource.json.JsonObject;
+
 public class BoxWebLinkTest {
+
+    @Test
+    @Category(UnitTest.class)
+    public void removeFromCollectionSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setBaseURL("https://api.box.com/2.0/");
+        api.setRequestInterceptor(new JSONRequestInterceptor() {
+            @Override
+            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+                assertEquals("https://api.box.com/2.0/web_links/0", request.getUrl().toString());
+                assertEquals("{\"collections\":[]}", json.toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{}";
+                    }
+                };
+            }
+        });
+
+        BoxWebLink webLink = new BoxWebLink(api, "0");
+        webLink.removeFromCollections();
+    }
 
     @Test
     @Category(IntegrationTest.class)

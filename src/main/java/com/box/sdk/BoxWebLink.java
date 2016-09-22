@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
@@ -125,6 +126,19 @@ public class BoxWebLink extends BoxItem {
         request.setBody(updateInfo.toString());
         BoxAPIResponse response = request.send();
         response.disconnect();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public BoxItem.Info removeFromCollections() {
+        URL url = WEB_LINK_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxJSONRequest request = new BoxJSONRequest(this.getAPI(), url, "PUT");
+        JsonArray array = new JsonArray();
+        request.setBody(new JsonObject().add("collections", array).toString());
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        return new Info(response.getJSON());
     }
 
     @Override

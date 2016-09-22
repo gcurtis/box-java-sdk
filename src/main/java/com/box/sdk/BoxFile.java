@@ -772,15 +772,16 @@ public class BoxFile extends BoxItem {
     }
 
     /**
-     * Deletes this file from all collections.
-     * @see    <a href="https://docs.box.com/reference#add-or-delete-items-from-a-collection">API referense</a>
+     * {@inheritDoc}
      */
-    public void removeFromCollections() {
+    @Override
+    public BoxItem.Info removeFromCollections() {
         URL url = FILE_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
         BoxJSONRequest request = new BoxJSONRequest(this.getAPI(), url, "PUT");
         JsonArray array = new JsonArray();
         request.setBody(new JsonObject().add("collections", array).toString());
-        request.send();
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        return new Info(response.getJSON());
     }
 
     /**
