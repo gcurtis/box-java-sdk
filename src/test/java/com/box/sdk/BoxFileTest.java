@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Scanner;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
@@ -30,19 +31,17 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import com.eclipsesource.json.JsonObject;
-
 public class BoxFileTest {
     @Test
     @Category(UnitTest.class)
     public void removeFromCollectionSendsCorrectRequest() {
         BoxAPIConnection api = new BoxAPIConnection("");
         api.setBaseURL("https://api.box.com/2.0/");
-        api.setRequestInterceptor(new JSONRequestInterceptor() {
+        api.setRequestInterceptor(new RequestInterceptor() {
             @Override
-            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
                 assertEquals("https://api.box.com/2.0/files/0", request.getUrl().toString());
-                assertEquals("{\"collections\":[]}", json.toString());
+                assertEquals("{\"collections\":[]}", new Scanner(request.getBody()).next());
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {

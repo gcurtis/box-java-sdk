@@ -2,6 +2,7 @@ package com.box.sdk;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Scanner;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
@@ -11,8 +12,6 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import com.eclipsesource.json.JsonObject;
-
 public class BoxWebLinkTest {
 
     @Test
@@ -20,11 +19,11 @@ public class BoxWebLinkTest {
     public void removeFromCollectionSendsCorrectRequest() {
         BoxAPIConnection api = new BoxAPIConnection("");
         api.setBaseURL("https://api.box.com/2.0/");
-        api.setRequestInterceptor(new JSONRequestInterceptor() {
+        api.setRequestInterceptor(new RequestInterceptor() {
             @Override
-            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
                 assertEquals("https://api.box.com/2.0/web_links/0", request.getUrl().toString());
-                assertEquals("{\"collections\":[]}", json.toString());
+                assertEquals("{\"collections\":[]}", new Scanner(request.getBody()).next());
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {

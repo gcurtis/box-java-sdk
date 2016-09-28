@@ -134,7 +134,7 @@ public class BoxWebLink extends BoxItem {
     @Override
     public BoxItem.Info removeFromCollections() {
         URL url = WEB_LINK_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
-        BoxJSONRequest request = new BoxJSONRequest(this.getAPI(), url, "PUT");
+        BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "PUT");
         JsonArray array = new JsonArray();
         request.setBody(new JsonObject().add("collections", array).toString());
         BoxJSONResponse response = (BoxJSONResponse) request.send();

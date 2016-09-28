@@ -202,11 +202,11 @@ public class BoxFolderTest {
     public void removeFromCollectionSendsCorrectRequest() {
         BoxAPIConnection api = new BoxAPIConnection("");
         api.setBaseURL("https://api.box.com/2.0/");
-        api.setRequestInterceptor(new JSONRequestInterceptor() {
+        api.setRequestInterceptor(new RequestInterceptor() {
             @Override
-            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
                 assertEquals("https://api.box.com/2.0/folders/0", request.getUrl().toString());
-                assertEquals("{\"collections\":[]}", json.toString());
+                assertEquals("{\"collections\":[]}", new Scanner(request.getBody()).next());
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {
