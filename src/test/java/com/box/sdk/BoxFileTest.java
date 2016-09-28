@@ -475,7 +475,7 @@ public class BoxFileTest {
 
         Metadata check1 = uploadedFile.getMetadata();
         Assert.assertNotNull(check1);
-        assertEquals("bar", check1.get("/foo"));
+        Assert.assertEquals("bar", check1.get("/foo"));
 
         uploadedFile.delete();
     }
@@ -494,13 +494,13 @@ public class BoxFileTest {
 
         Metadata check1 = uploadedFile.getMetadata();
         Assert.assertNotNull(check1);
-        assertEquals("bar", check1.get("/foo"));
+        Assert.assertEquals("bar", check1.get("/foo"));
 
         uploadedFile.updateMetadata(check1.replace("/foo", "baz"));
 
         Metadata check2 = uploadedFile.getMetadata();
         Assert.assertNotNull(check2);
-        assertEquals("baz", check2.get("/foo"));
+        Assert.assertEquals("baz", check2.get("/foo"));
 
         uploadedFile.delete();
     }
