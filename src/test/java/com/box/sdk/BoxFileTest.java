@@ -41,7 +41,9 @@ public class BoxFileTest {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
                 assertEquals("https://api.box.com/2.0/files/0", request.getUrl().toString());
-                assertEquals("{\"collections\":[]}", new Scanner(request.getBody()).next());
+                Scanner body = new Scanner(request.getBody());
+                assertEquals("{\"collections\":[]}", body.next());
+                body.close();
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {
