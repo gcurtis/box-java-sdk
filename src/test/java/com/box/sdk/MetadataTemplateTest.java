@@ -1,5 +1,6 @@
 package com.box.sdk;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Assert;
@@ -7,6 +8,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import com.eclipsesource.json.JsonObject;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
@@ -109,5 +111,128 @@ public class MetadataTemplateTest {
         Assert.assertEquals(secondFieldFirstOption, templateFields.get(1).getOptions().get(0));
         Assert.assertEquals(secondFieldSecondOption, templateFields.get(1).getOptions().get(1));
 
+    }
+
+    /**
+     * Unit test for {@link MetadataTemplate#getEnterpriseMetadataTemplates(BoxAPIConnection)}.
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetEnterpriseMetadataTemplatesSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals(
+                        "https://api.box.com/2.0/metadata_templates/enterprise", request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{}";
+                    }
+                };
+            }
+        });
+
+        MetadataTemplate.getEnterpriseMetadataTemplates(api);
+    }
+
+    /**
+     * Unit test for {@link MetadataTemplate#getEnterpriseMetadataTemplates(BoxAPIConnection)}.
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetEnterpriseMetadataTemplatesParseAllFieldsCorrectly() {
+        final String firstEntryTemplateKey = "documentFlow";
+        final String firstEntryScope = "enterprise_12345";
+        final String firstEntryDisplayName = "Document Flow";
+        final Boolean firstEntryIsHidden = false;
+        final String firstEntryFieldType = "string";
+        final String firstEntryFieldKey = "currentDocumentStage";
+        final String firstEntryFieldDisplayName = "Current Document Stage";
+        final Boolean firstEntryFieldIsHidden = false;
+        final String firstEntryFieldDescription = "What stage in the process the document is in";
+        final String secondEntryTemplateKey = "productInfo";
+        final String secondEntryScope = "enterprise_12345";
+        final String secondEntryDisplayName = "Product Info";
+        final Boolean secondEntryIsHidden = false;
+        final String secondEntryFieldType = "enum";
+        final String secondEntryFieldKey = "department";
+        final String secondEntryFieldDisplayName = "Department";
+        final Boolean secondEntryFieldIsHidden = false;
+        final String secondEntryFieldFirstOption = "Beauty";
+        final String secondEntryFieldSecondOption = "Shoes";
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "    \"limit\": 100,\n"
+                + "    \"entries\": [\n"
+                + "        {\n"
+                + "            \"templateKey\": \"documentFlow\",\n"
+                + "            \"scope\": \"enterprise_12345\",\n"
+                + "            \"displayName\": \"Document Flow\",\n"
+                + "            \"hidden\": false,\n"
+                + "            \"fields\": [\n"
+                + "                {\n"
+                + "                    \"type\": \"string\",\n"
+                + "                    \"key\": \"currentDocumentStage\",\n"
+                + "                    \"displayName\": \"Current Document Stage\",\n"
+                + "                    \"hidden\": false,\n"
+                + "                    \"description\": \"What stage in the process the document is in\"\n"
+                + "                }\n"
+                + "            ]\n"
+                + "        },\n"
+                + "        {\n"
+                + "            \"templateKey\": \"productInfo\",\n"
+                + "            \"scope\": \"enterprise_12345\",\n"
+                + "            \"displayName\": \"Product Info\",\n"
+                + "            \"hidden\": false,\n"
+                + "            \"fields\": [\n"
+                + "                {\n"
+                + "                    \"type\": \"enum\",\n"
+                + "                    \"key\": \"department\",\n"
+                + "                    \"displayName\": \"Department\",\n"
+                + "                    \"hidden\": false,\n"
+                + "                    \"options\": [\n"
+                + "                        {\n"
+                + "                            \"key\": \"Beauty\"\n"
+                + "                        },\n"
+                + "                        {\n"
+                + "                            \"key\": \"Shoes\"\n"
+                + "                        }\n"
+                + "                    ]\n"
+                + "                }\n"
+                + "            ]\n"
+                + "        }\n"
+                + "    ],\n"
+                + "    \"next_marker\": null,\n"
+                + "    \"prev_marker\": null\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        Iterator<MetadataTemplate> iterator = MetadataTemplate.getEnterpriseMetadataTemplates(api).iterator();
+        MetadataTemplate template = iterator.next();
+        Assert.assertEquals(firstEntryTemplateKey, template.getTemplateKey());
+        Assert.assertEquals(firstEntryScope, template.getScope());
+        Assert.assertEquals(firstEntryDisplayName, template.getDisplayName());
+        Assert.assertEquals(firstEntryIsHidden, template.getIsHidden());
+        Assert.assertEquals(firstEntryFieldType, template.getFields().get(0).getType());
+        Assert.assertEquals(firstEntryFieldKey, template.getFields().get(0).getKey());
+        Assert.assertEquals(firstEntryFieldDisplayName, template.getFields().get(0).getDisplayName());
+        Assert.assertEquals(firstEntryFieldIsHidden, template.getFields().get(0).getIsHidden());
+        Assert.assertEquals(firstEntryFieldDescription, template.getFields().get(0).getDescription());
+        template = iterator.next();
+        Assert.assertEquals(secondEntryTemplateKey, template.getTemplateKey());
+        Assert.assertEquals(secondEntryScope, template.getScope());
+        Assert.assertEquals(secondEntryDisplayName, template.getDisplayName());
+        Assert.assertEquals(secondEntryIsHidden, template.getIsHidden());
+        Assert.assertEquals(secondEntryFieldType, template.getFields().get(0).getType());
+        Assert.assertEquals(secondEntryFieldKey, template.getFields().get(0).getKey());
+        Assert.assertEquals(secondEntryFieldDisplayName, template.getFields().get(0).getDisplayName());
+        Assert.assertEquals(secondEntryFieldIsHidden, template.getFields().get(0).getIsHidden());
+        Assert.assertEquals(secondEntryFieldFirstOption, template.getFields().get(0).getOptions().get(0));
+        Assert.assertEquals(secondEntryFieldSecondOption, template.getFields().get(0).getOptions().get(1));
+        Assert.assertFalse(iterator.hasNext());
     }
 }

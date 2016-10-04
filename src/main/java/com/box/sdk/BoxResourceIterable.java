@@ -132,7 +132,7 @@ public abstract class BoxResourceIterable<T> implements Iterable<T> {
             JsonObject pageBody = JsonObject.readFrom(response.getJSON());
 
             JsonValue markerNextValue = pageBody.get(BODY_PARAMETER_MARKER_NEXT);
-            if (markerNextValue != null) {
+            if (markerNextValue != null && markerNextValue.isString()) {
                 this.markerNext = markerNextValue.asString();
             } else {
                 this.markerNext = null;

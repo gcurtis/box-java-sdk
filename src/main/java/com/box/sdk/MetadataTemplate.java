@@ -21,12 +21,17 @@ public class MetadataTemplate extends BoxJSONObject {
             = new URLTemplate("metadata_templates/%s/%s/schema");
 
     /**
+     * @see #getEnterpriseMetadataTemplates(BoxAPIConnection)
+     */
+    private static final URLTemplate ENTERPRISE_METADATA_URL_TEMPLATE = new URLTemplate("metadata_templates/%s");
+
+    /**
      * Default metadata type to be used in query.
      */
     private static final String DEFAULT_METADATA_TYPE = "properties";
 
     /**
-     * Global metadata scope. Used by default if the metadata type is "properties"
+     * Global metadata scope. Used by default if the metadata type is "properties".
      */
     private static final String GLOBAL_METADATA_SCOPE = "global";
 
@@ -180,6 +185,32 @@ public class MetadataTemplate extends BoxJSONObject {
     }
 
     /**
+     * Returns all metadata templates within a user's enterprise.
+     * @param api the API connection to be used.
+     * @return the metadata template returned from the server.
+     */
+    public static Iterable<MetadataTemplate> getEnterpriseMetadataTemplates(BoxAPIConnection api) {
+        return getEnterpriseMetadataTemplates(api, ENTERPRISE_METADATA_SCOPE);
+    }
+
+    /**
+     * Returns all metadata templates within a user's scope. Currently only the enterprise scope is supported.
+     * @param api the API connection to be used.
+     * @param scope the scope of the metadata templates.
+     * @return the metadata template returned from the server.
+     */
+    public static Iterable<MetadataTemplate> getEnterpriseMetadataTemplates(BoxAPIConnection api, String scope) {
+        return new BoxResourceIterable<MetadataTemplate>(
+                api, ENTERPRISE_METADATA_URL_TEMPLATE.build(api.getBaseURL(), scope), 100) {
+
+            @Override
+            protected MetadataTemplate factory(JsonObject jsonObject) {
+                return new MetadataTemplate(jsonObject);
+            }
+        };
+    }
+
+    /**
      * Determines the metadata scope based on type.
      * @param typeName type of the metadata.
      * @return scope of the metadata.
@@ -218,6 +249,11 @@ public class MetadataTemplate extends BoxJSONObject {
          * @see #getIsHidden()
          */
         private Boolean isHidden;
+
+        /**
+         * @see #getDescription()
+         */
+        private String description;
 
         /**
          * @see #getOptions()
@@ -279,6 +315,14 @@ public class MetadataTemplate extends BoxJSONObject {
         }
 
         /**
+         * Gets the description of the field.
+         * @return the description of the field.
+         */
+        public String getDescription() {
+            return this.description;
+        }
+
+        /**
          * Gets list of possible options for enum type of the field.
          * @return list of possible options for enum type of the field.
          */
@@ -301,6 +345,8 @@ public class MetadataTemplate extends BoxJSONObject {
                 this.displayName = value.asString();
             } else if (memberName.equals("hidden")) {
                 this.isHidden = value.asBoolean();
+            } else if (memberName.equals("description")) {
+                this.description = value.asString();
             } else if (memberName.equals("options")) {
                 this.options = new ArrayList<String>();
                 for (JsonValue key: value.asArray()) {
