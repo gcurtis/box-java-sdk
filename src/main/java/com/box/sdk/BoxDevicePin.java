@@ -45,6 +45,16 @@ public class BoxDevicePin extends BoxResource {
     }
 
     /**
+     * Deletes the device pin.
+     */
+    public void delete() {
+        URL url = DEVICE_PIN_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "DELETE");
+        BoxAPIResponse response = request.send();
+        response.disconnect();
+    }
+
+    /**
      * Contains information about a task assignment.
      */
     public class Info extends BoxResource.Info {

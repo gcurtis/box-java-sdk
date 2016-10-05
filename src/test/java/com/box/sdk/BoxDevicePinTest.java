@@ -79,4 +79,28 @@ public class BoxDevicePinTest {
         Assert.assertEquals(createdAt, info.getCreatedAt());
         Assert.assertEquals(modifiedAt, info.getModifiedAt());
     }
+
+    /**
+     * Unit test for {@link BoxDevicePin#delete()}.
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testDeleteSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/device_pinners/0", request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{}";
+                    }
+                };
+            }
+        });
+
+        BoxDevicePin pin = new BoxDevicePin(api, "0");
+        pin.delete();
+    }
 }
