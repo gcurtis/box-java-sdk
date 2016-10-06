@@ -83,7 +83,7 @@ public class BoxDevicePinTest {
     }
 
     /**
-     * Unit test for {@link BoxDevicePin#getEnterpriceDevicePins(String)}.
+     * Unit test for {@link BoxDevicePin#getEnterpriceDevicePins(BoxAPIConnection, String)}.
      */
     @Test(expected = NoSuchElementException.class)
     @Category(UnitTest.class)
@@ -103,8 +103,78 @@ public class BoxDevicePinTest {
             }
         });
 
-        BoxDevicePin pin = new BoxDevicePin(api, "0");
-        Iterator iterator = pin.getEnterpriceDevicePins("0").iterator();
+        Iterator iterator = BoxDevicePin.getEnterpriceDevicePins(api, "0").iterator();
         iterator.next();
+    }
+
+    /**
+     * Unit test for {@link BoxDevicePin#getEnterpriceDevicePins(BoxAPIConnection, String)}.
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetEnterpriseDevicePinsParseAllFieldsCorrectly() {
+        final String firstEntryID = "788804";
+        final String firstEntryUserID = "222276603";
+        final String firstEntryUserName = "Ted Blosser";
+        final String firstEntryUserLogin = "ted+boxworks2@box.com";
+        final String firstEntryProductName = "iPad";
+        final String secondEntryID = "1003086";
+        final String secondEntryUserID = "222276604";
+        final String secondEntryUserName = "Alison Wonderland";
+        final String secondEntryUserLogin = "alison+wonderland2@box.com";
+        final String secondEntryProductName = "iPhone";
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "    \"entries\": [\n"
+                + "        {\n"
+                + "            \"type\": \"device_pinner\",\n"
+                + "            \"id\": \"788804\",\n"
+                + "            \"owned_by\": {\n"
+                + "                \"type\": \"user\",\n"
+                + "                \"id\": \"222276603\",\n"
+                + "                \"name\": \"Ted Blosser\",\n"
+                + "                \"login\": \"ted+boxworks2@box.com\"\n"
+                + "            },\n"
+                + "            \"product_name\": \"iPad\"\n"
+                + "        },\n"
+                + "\n"
+                + "        {\n"
+                + "            \"type\": \"device_pinner\",\n"
+                + "            \"id\": \"1003086\",\n"
+                + "            \"owned_by\": {\n"
+                + "                \"type\": \"user\",\n"
+                + "                \"id\": \"222276604\",\n"
+                + "                \"name\": \"Alison Wonderland\",\n"
+                + "                \"login\": \"alison+wonderland2@box.com\"\n"
+                + "            },\n"
+                + "            \"product_name\": \"iPhone\"\n"
+                + "        }\n"
+                + "    ],\n"
+                + "    \"limit\": 100,\n"
+                + "    \"order\": [\n"
+                + "        {\n"
+                + "            \"by\": \"id\",\n"
+                + "            \"direction\": \"ASC\"\n"
+                + "        }\n"
+                + "    ]\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        Iterator<BoxDevicePin.Info> iterator = BoxDevicePin.getEnterpriceDevicePins(api, "0").iterator();
+        BoxDevicePin.Info info = iterator.next();
+        Assert.assertEquals(firstEntryID, info.getID());
+        Assert.assertEquals(firstEntryUserID, info.getOwnedBy().getID());
+        Assert.assertEquals(firstEntryUserName, info.getOwnedBy().getName());
+        Assert.assertEquals(firstEntryUserLogin, info.getOwnedBy().getLogin());
+        Assert.assertEquals(firstEntryProductName, info.getProductName());
+        info = iterator.next();
+        Assert.assertEquals(secondEntryID, info.getID());
+        Assert.assertEquals(secondEntryUserID, info.getOwnedBy().getID());
+        Assert.assertEquals(secondEntryUserName, info.getOwnedBy().getName());
+        Assert.assertEquals(secondEntryUserLogin, info.getOwnedBy().getLogin());
+        Assert.assertEquals(secondEntryProductName, info.getProductName());
+        Assert.assertEquals(false, iterator.hasNext());
     }
 }
