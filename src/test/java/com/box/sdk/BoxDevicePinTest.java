@@ -2,6 +2,8 @@ package com.box.sdk;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -78,5 +80,31 @@ public class BoxDevicePinTest {
         Assert.assertEquals(productName, info.getProductName());
         Assert.assertEquals(createdAt, info.getCreatedAt());
         Assert.assertEquals(modifiedAt, info.getModifiedAt());
+    }
+
+    /**
+     * Unit test for {@link BoxDevicePin#getEnterpriceDevicePins(String)}.
+     */
+    @Test(expected = NoSuchElementException.class)
+    @Category(UnitTest.class)
+    public void testGetEnterpriseDevicePinsSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/enterprises/0/device_pinners",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"entries\":[]}";
+                    }
+                };
+            }
+        });
+
+        BoxDevicePin pin = new BoxDevicePin(api, "0");
+        Iterator iterator = pin.getEnterpriceDevicePins("0", 2).iterator();
+        iterator.next();
     }
 }

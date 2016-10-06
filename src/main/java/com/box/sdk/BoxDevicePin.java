@@ -23,6 +23,16 @@ public class BoxDevicePin extends BoxResource {
     private static final URLTemplate DEVICE_PIN_URL_TEMPLATE = new URLTemplate("device_pinners/%s");
 
     /**
+     * The URL template used to get all the device pins within a given enterprise.
+     */
+    private static final URLTemplate ENTERPRICE_DEVICE_PINS_TEMPLATE = new URLTemplate("enterprises/%s/device_pinners");
+
+    /**
+     * Default limit of the device info entries per one response page.
+     */
+    private static final int DEVICES_DEFAULT_LIMIT = 100;
+
+    /**
      * Constructs a device pin for a resource with a given ID.
      *
      * @param api the API connection to be used by the resource.
@@ -33,7 +43,7 @@ public class BoxDevicePin extends BoxResource {
     }
 
     /**
-     * Gets information about the device pin.
+     * Returns information about the device pin.
      * @return info about the device pin.
      */
     public Info getInfo() {
@@ -42,6 +52,35 @@ public class BoxDevicePin extends BoxResource {
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
         return new Info(responseJSON);
+    }
+
+    /**
+     * Returns iterable with all the device pins within a given enterprise.
+     * Must be an enterprise admin with the manage enterprise scope to make this call.
+     * @param enterpriseID ID of the enterprise to get all the device pins within.
+     * @return iterable with all the device pins within a given enterprise.
+     */
+    public Iterable<BoxDevicePin.Info> getEnterpriceDevicePins(String enterpriseID) {
+        return this.getEnterpriceDevicePins(enterpriseID, DEVICES_DEFAULT_LIMIT);
+    }
+
+    /**
+     * Returns iterable with all the device pins within a given enterprise.
+     * Must be an enterprise admin with the manage enterprise scope to make this call.
+     * @param enterpriseID ID of the enterprise to get all the device pins within.
+     * @param limit the maximum number of items to return in a page.
+     * @return iterable with all the device pins within a given enterprise.
+     */
+    public Iterable<BoxDevicePin.Info> getEnterpriceDevicePins(String enterpriseID, int limit) {
+        return new BoxResourceIterable<BoxDevicePin.Info>(getAPI(),
+                ENTERPRICE_DEVICE_PINS_TEMPLATE.build(getAPI().getBaseURL(), enterpriseID), limit) {
+
+            @Override
+            protected BoxDevicePin.Info factory(JsonObject jsonObject) {
+                BoxDevicePin pin = new BoxDevicePin(getAPI(), jsonObject.get("id").asString());
+                return pin.new Info(jsonObject);
+            }
+        };
     }
 
     /**
@@ -162,5 +201,4 @@ public class BoxDevicePin extends BoxResource {
             }
         }
     }
-
 }
