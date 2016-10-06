@@ -41,6 +41,11 @@ public class MetadataTemplate extends BoxJSONObject {
     private static final String ENTERPRISE_METADATA_SCOPE = "enterprise";
 
     /**
+     * Default number of entries per page.
+     */
+    private static final int DEFAULT_ENTRIES_LIMIT = 100;
+
+    /**
      * @see #getTemplateKey()
      */
     private String templateKey;
@@ -200,8 +205,20 @@ public class MetadataTemplate extends BoxJSONObject {
      * @return the metadata template returned from the server.
      */
     public static Iterable<MetadataTemplate> getEnterpriseMetadataTemplates(BoxAPIConnection api, String scope) {
+        return getEnterpriseMetadataTemplates(api, ENTERPRISE_METADATA_SCOPE, DEFAULT_ENTRIES_LIMIT);
+    }
+
+    /**
+     * Returns all metadata templates within a user's scope. Currently only the enterprise scope is supported.
+     * @param api the API connection to be used.
+     * @param scope the scope of the metadata templates.
+     * @param limit maximum number of entries per response.
+     * @return the metadata template returned from the server.
+     */
+    public static Iterable<MetadataTemplate> getEnterpriseMetadataTemplates(BoxAPIConnection api, String scope,
+                                                                            int limit) {
         return new BoxResourceIterable<MetadataTemplate>(
-                api, ENTERPRISE_METADATA_URL_TEMPLATE.build(api.getBaseURL(), scope), 100) {
+                api, ENTERPRISE_METADATA_URL_TEMPLATE.build(api.getBaseURL(), scope), limit) {
 
             @Override
             protected MetadataTemplate factory(JsonObject jsonObject) {

@@ -2,6 +2,7 @@ package com.box.sdk;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -116,7 +117,7 @@ public class MetadataTemplateTest {
     /**
      * Unit test for {@link MetadataTemplate#getEnterpriseMetadataTemplates(BoxAPIConnection)}.
      */
-    @Test
+    @Test(expected = NoSuchElementException.class)
     @Category(UnitTest.class)
     public void testGetEnterpriseMetadataTemplatesSendsCorrectRequest() {
         BoxAPIConnection api = new BoxAPIConnection("");
@@ -124,17 +125,18 @@ public class MetadataTemplateTest {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
                 Assert.assertEquals(
-                        "https://api.box.com/2.0/metadata_templates/enterprise", request.getUrl().toString());
+                        "https://api.box.com/2.0/metadata_templates/enterprise?limit=100", request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {
-                        return "{}";
+                        return "{\"entries\":[]}";
                     }
                 };
             }
         });
 
-        MetadataTemplate.getEnterpriseMetadataTemplates(api);
+        Iterator iterator = MetadataTemplate.getEnterpriseMetadataTemplates(api).iterator();
+        iterator.next();
     }
 
     /**
