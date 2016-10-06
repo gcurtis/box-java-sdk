@@ -92,7 +92,7 @@ public class BoxDevicePinTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/enterprises/0/device_pinners",
+                Assert.assertEquals("https://api.box.com/2.0/enterprises/0/device_pinners?limit=100",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -104,7 +104,7 @@ public class BoxDevicePinTest {
         });
 
         BoxDevicePin pin = new BoxDevicePin(api, "0");
-        Iterator iterator = pin.getEnterpriceDevicePins("0", 2).iterator();
+        Iterator iterator = pin.getEnterpriceDevicePins("0").iterator();
         iterator.next();
     }
 }
