@@ -8,7 +8,9 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
 /**
- * The MetadataTemplate class represents one type instance of Box metadata template.
+ * The MetadataTemplate class represents the Box metadata template object.
+ * Templates allow the metadata service to provide a multitude of services,
+ * such as pre-defining sets of key:value pairs or schema enforcement on specific fields.
  *
  * @see <a href="https://docs.box.com/reference#metadata-templates">Box metadata templates</a>
  */
@@ -233,13 +235,7 @@ public class MetadataTemplate extends BoxJSONObject {
      * @return scope of the metadata.
      */
     private static String scopeBasedOnType(String typeName) {
-        String scope;
-        if (typeName.equals(DEFAULT_METADATA_TYPE)) {
-            scope = GLOBAL_METADATA_SCOPE;
-        } else {
-            scope = ENTERPRISE_METADATA_SCOPE;
-        }
-        return scope;
+        return typeName.equals(DEFAULT_METADATA_TYPE) ? GLOBAL_METADATA_SCOPE : ENTERPRISE_METADATA_SCOPE;
     }
 
     /**
