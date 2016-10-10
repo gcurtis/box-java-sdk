@@ -59,7 +59,7 @@ public class BoxRetentionPolicy extends BoxResource {
      * @param name the name of the retention policy.
      * @return the created retention policy's info.
      */
-    public static BoxRetentionPolicy.Info createIndefiniteRetentionPolicy(BoxAPIConnection api, String name) {
+    public static BoxRetentionPolicy.Info createIndefinitePolicy(BoxAPIConnection api, String name) {
         return createRetentionPolicy(api, name, TYPE_INDEFINITE, 0, ACTION_REMOVE_RETENTION);
     }
 
@@ -71,7 +71,7 @@ public class BoxRetentionPolicy extends BoxResource {
      * @param action the disposition action can be "permanently_delete" or "remove_retention".
      * @return the created retention policy's info.
      */
-    public static BoxRetentionPolicy.Info createFiniteRetentionPolicy(BoxAPIConnection api, String name, int length,
+    public static BoxRetentionPolicy.Info createFinitePolicy(BoxAPIConnection api, String name, int length,
                                                                       String action) {
         return createRetentionPolicy(api, name, TYPE_FINITE, length, action);
     }
