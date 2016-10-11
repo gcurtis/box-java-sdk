@@ -44,6 +44,12 @@ public class BoxRetentionPolicy extends BoxResource {
     private static final URLTemplate RETENTION_POLICIES_URL_TEMPLATE = new URLTemplate("retention_policies");
 
     /**
+     * The URL template used for operation with retention policy with given ID.
+     */
+    private static final URLTemplate POLICY_URL_TEMPLATE = new URLTemplate("retention_policies/%s");
+
+
+    /**
      * Constructs a retention policy for a resource with a given ID.
      *
      * @param api the API connection to be used by the resource.
@@ -101,6 +107,18 @@ public class BoxRetentionPolicy extends BoxResource {
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
         BoxRetentionPolicy createdPolicy = new BoxRetentionPolicy(api, responseJSON.get("id").asString());
         return createdPolicy.new Info(responseJSON);
+    }
+
+    /**
+     * Returns information about this retention policy.
+     * @return information about this retention policy.
+     */
+    public BoxRetentionPolicy.Info getInfo() {
+        URL url = POLICY_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
+        return new Info(responseJSON);
     }
 
     /**
