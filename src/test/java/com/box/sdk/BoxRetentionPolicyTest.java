@@ -192,7 +192,8 @@ public class BoxRetentionPolicyTest {
         BoxAPIConnection api = new BoxAPIConnection("");
         api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
 
-        BoxRetentionPolicy.Info info = BoxRetentionPolicy.createFinitePolicy(api, name, length, action);
+        BoxRetentionPolicy policy = new BoxRetentionPolicy(api, "123456789");
+        BoxRetentionPolicy.Info info = policy.getInfo();
         Assert.assertEquals(id, info.getID());
         Assert.assertEquals(name, info.getPolicyName());
         Assert.assertEquals(type, info.getPolicyType());
