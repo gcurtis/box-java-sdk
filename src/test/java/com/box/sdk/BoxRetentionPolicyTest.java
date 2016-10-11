@@ -2,6 +2,7 @@ package com.box.sdk;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -127,6 +128,92 @@ public class BoxRetentionPolicyTest {
         Assert.assertEquals(userLogin, info.getCreatedBy().getLogin());
         Assert.assertEquals(createdAt, info.getCreatedAt());
         Assert.assertEquals(modifiedAt, info.getModifiedAt());
+    }
+
+    /**
+     * Unit test for {@link BoxRetentionPolicy#getAll(BoxAPIConnection, String, String, String)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetAllSendsCorrectRequestWithParams() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/retention_policies?"
+                        + "policy_name=any_name&policy_type=any_type&created_by_user_id=any_user",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"entries\": []}";
+                    }
+                };
+            }
+        });
+
+        Iterator iterator = BoxRetentionPolicy.getAll(api, "any_name", "any_type", "any_user").iterator();
+        iterator.hasNext();
+    }
+
+    /**
+     * Unit test for {@link BoxRetentionPolicy#getAll(BoxAPIConnection)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetAllSendsCorrectRequestWithoutParams() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/retention_policies", request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"entries\": []}";
+                    }
+                };
+            }
+        });
+
+        Iterator iterator = BoxRetentionPolicy.getAll(api).iterator();
+        iterator.hasNext();
+    }
+
+    @Test
+    @Category(UnitTest.class)
+    public void testGetAllParseAllFieldsCorrectly() {
+        final String firstID = "123456789";
+        final String firstName = "TaxDocuments";
+        final String secondID = "987654321";
+        final String secondName = "DutyPapers";
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"entries\": [\n"
+                + "    {\n"
+                + "      \"type\": \"retention_policy\",\n"
+                + "      \"id\": \"123456789\",\n"
+                + "      \"policy_name\": \"TaxDocuments\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"type\": \"retention_policy\",\n"
+                + "      \"id\": \"987654321\",\n"
+                + "      \"policy_name\": \"DutyPapers\"\n"
+                + "    }\n"
+                + "  ] \n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        Iterator<BoxRetentionPolicy.Info> iterator = BoxRetentionPolicy.getAll(api).iterator();
+        BoxRetentionPolicy.Info info = iterator.next();
+        Assert.assertEquals(firstID, info.getID());
+        Assert.assertEquals(firstName, info.getPolicyName());
+        info = iterator.next();
+        Assert.assertEquals(secondID, info.getID());
+        Assert.assertEquals(secondName, info.getPolicyName());
+        Assert.assertEquals(false, iterator.hasNext());
     }
 
 }

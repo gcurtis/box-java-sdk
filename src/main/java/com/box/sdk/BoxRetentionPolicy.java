@@ -39,6 +39,11 @@ public class BoxRetentionPolicy extends BoxResource {
     private static final String TYPE_INDEFINITE = "indefinite";
 
     /**
+     * The default limit of entries per response.
+     */
+    private static final int DEFAULT_LIMIT = 100;
+
+    /**
      * The URL template used for operation with retention policies.
      */
     private static final URLTemplate RETENTION_POLICIES_URL_TEMPLATE = new URLTemplate("retention_policies");
@@ -101,6 +106,48 @@ public class BoxRetentionPolicy extends BoxResource {
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
         BoxRetentionPolicy createdPolicy = new BoxRetentionPolicy(api, responseJSON.get("id").asString());
         return createdPolicy.new Info(responseJSON);
+    }
+
+    /**
+     * Returns all the retention policies.
+     * @param api the API connection to be used by the resource.
+     * @return an iterable with all the retention policies.
+     */
+    public static Iterable<BoxRetentionPolicy.Info> getAll(final BoxAPIConnection api) {
+        return getAll(api, null, null, null);
+    }
+
+    /**
+     * Returns all the retention policies with specified filters.
+     * @param api the API connection to be used by the resource.
+     * @param name a name to filter the retention policies by. A trailing partial match search is performed.
+     *             Set to null if no name filtering is required.
+     * @param type a policy type to filter the retention policies by. Set to null if no type filtering is required.
+     * @param userID a user id to filter the retention policies by. Set to null if no type filtering is required.
+     * @return an iterable with all the retention policies met search conditions.
+     */
+    public static Iterable<BoxRetentionPolicy.Info> getAll(final BoxAPIConnection api,
+                                                           String name, String type, String userID) {
+        QueryStringBuilder queryString = new QueryStringBuilder();
+        if (name != null) {
+            queryString.appendParam("policy_name", name);
+        }
+        if (type != null) {
+            queryString.appendParam("policy_type", type);
+        }
+        if (userID != null) {
+            queryString.appendParam("created_by_user_id", userID);
+        }
+        URL url = RETENTION_POLICIES_URL_TEMPLATE.buildWithQuery(api.getBaseURL(), queryString.toString());
+        return new BoxResourceIterable<BoxRetentionPolicy.Info>(api, url, DEFAULT_LIMIT) {
+
+            @Override
+            protected BoxRetentionPolicy.Info factory(JsonObject jsonObject) {
+                BoxRetentionPolicy policy = new BoxRetentionPolicy(api, jsonObject.get("id").asString());
+                return policy.new Info(jsonObject);
+            }
+
+        };
     }
 
     /**
