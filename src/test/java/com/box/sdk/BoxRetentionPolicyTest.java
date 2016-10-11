@@ -164,4 +164,60 @@ public class BoxRetentionPolicyTest {
         policy.updateInfo(info);
     }
 
+    /**
+     * Unit test for {@link BoxRetentionPolicy#updateInfo(BoxRetentionPolicy.Info)} )}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testUpdateInfoParseAllFieldsCorrectly() throws ParseException {
+        final String id = "123456789";
+        final String name = "Tax Documents";
+        final String type = "finite";
+        final int length = 365;
+        final String action = BoxRetentionPolicy.ACTION_REMOVE_RETENTION;
+        final String status = "active";
+        final String userID = "11993747";
+        final String userName = "Sean";
+        final String userLogin = "sean@box.com";
+        final Date createdAt = BoxDateFormat.parse("2015-05-01T11:12:54-07:00");
+        final Date modifiedAt = BoxDateFormat.parse("2015-06-08T11:11:50-07:00");
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{     \n"
+                + "  \"type\": \"retention_policy\",     \n"
+                + "  \"id\": \"123456789\",     \n"
+                + "  \"policy_name\": \"Tax Documents\", \n"
+                + "  \"policy_type\": \"finite\",     \n"
+                + "  \"retention_length\": 365,     \n"
+                + "  \"disposition_action\": \"remove_retention\",  \n"
+                + "  \"status\": \"active\",     \n"
+                + "  \"created_by\": {\n"
+                + "    \"type\": \"user\",\n"
+                + "    \"id\": \"11993747\",\n"
+                + "    \"name\": \"Sean\",\n"
+                + "    \"login\": \"sean@box.com\"\n"
+                + "  },\n"
+                + "  \"created_at\": \"2015-05-01T11:12:54-07:00\",\n"
+                + "  \"modified_at\": \"2015-06-08T11:11:50-07:00\" \n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxRetentionPolicy policy = new BoxRetentionPolicy(api, "123456789");
+        BoxRetentionPolicy.Info info = policy.new Info();
+        info.addPendingChange("policy_name", name);
+        policy.updateInfo(info);
+        Assert.assertEquals(id, info.getID());
+        Assert.assertEquals(name, info.getPolicyName());
+        Assert.assertEquals(type, info.getPolicyType());
+        Assert.assertEquals(length, info.getRetentionLength());
+        Assert.assertEquals(action, info.getDispositionAction());
+        Assert.assertEquals(status, info.getStatus());
+        Assert.assertEquals(userID, info.getCreatedBy().getID());
+        Assert.assertEquals(userName, info.getCreatedBy().getName());
+        Assert.assertEquals(userLogin, info.getCreatedBy().getLogin());
+        Assert.assertEquals(createdAt, info.getCreatedAt());
+        Assert.assertEquals(modifiedAt, info.getModifiedAt());
+    }
+
 }
