@@ -129,4 +129,39 @@ public class BoxRetentionPolicyTest {
         Assert.assertEquals(modifiedAt, info.getModifiedAt());
     }
 
+    /**
+     * Unit test for {@link BoxRetentionPolicy#updateInfo(BoxRetentionPolicy.Info)} )}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testUpdateInfoSendsCorrectJson() {
+        final String name = "Non-empty name";
+        final String action = BoxRetentionPolicy.ACTION_REMOVE_RETENTION;
+        final String status = BoxRetentionPolicy.STATUS_RETIRED;
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new JSONRequestInterceptor() {
+            @Override
+            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+                Assert.assertEquals("https://api.box.com/2.0/retention_policies/0", request.getUrl().toString());
+                Assert.assertEquals(name, json.get("policy_name").asString());
+                Assert.assertEquals(action, json.get("disposition_action").asString());
+                Assert.assertEquals(status, json.get("status").asString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{}";
+                    }
+                };
+            }
+        });
+
+        BoxRetentionPolicy policy = new BoxRetentionPolicy(api, "0");
+        BoxRetentionPolicy.Info info = policy.new Info();
+        info.addPendingChange("policy_name", name);
+        info.addPendingChange("disposition_action", action);
+        info.addPendingChange("status", status);
+        policy.updateInfo(info);
+    }
+
 }

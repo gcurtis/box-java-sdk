@@ -28,6 +28,16 @@ public class BoxRetentionPolicy extends BoxResource {
     public static final String ACTION_REMOVE_RETENTION = "remove_retention";
 
     /**
+     * Status corresponding to active retention policy.
+     */
+    public static final String STATUS_ACTIVE = "active";
+
+    /**
+     * Status corresponding to retired retention policy.
+     */
+    public static final String STATUS_RETIRED = "retired";
+
+    /**
      * Type for finite retention policies. Finite retention policies has the duration.
      */
     private static final String TYPE_FINITE = "finite";
@@ -42,6 +52,11 @@ public class BoxRetentionPolicy extends BoxResource {
      * The URL template used for operation with retention policies.
      */
     private static final URLTemplate RETENTION_POLICIES_URL_TEMPLATE = new URLTemplate("retention_policies");
+
+    /**
+     * The URL template used for operation with retention policy with given ID.
+     */
+    private static final URLTemplate POLICY_URL_TEMPLATE = new URLTemplate("retention_policies/%s");
 
     /**
      * Constructs a retention policy for a resource with a given ID.
@@ -101,6 +116,19 @@ public class BoxRetentionPolicy extends BoxResource {
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
         BoxRetentionPolicy createdPolicy = new BoxRetentionPolicy(api, responseJSON.get("id").asString());
         return createdPolicy.new Info(responseJSON);
+    }
+
+    /**
+     * Updates the information about this retention policy with any info fields that have been modified locally.
+     * @param info the updated info.
+     */
+    public void updateInfo(BoxRetentionPolicy.Info info) {
+        URL url = POLICY_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxJSONRequest request = new BoxJSONRequest(this.getAPI(), url, "PUT");
+        request.setBody(info.getPendingChanges());
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
+        info.update(responseJSON);
     }
 
     /**
