@@ -180,6 +180,9 @@ public class BoxRetentionPolicyTest {
         iterator.hasNext();
     }
 
+    /**
+     * Unit test for {@link BoxRetentionPolicy#getAll(BoxAPIConnection)}
+     */
     @Test
     @Category(UnitTest.class)
     public void testGetAllParseAllFieldsCorrectly() {
