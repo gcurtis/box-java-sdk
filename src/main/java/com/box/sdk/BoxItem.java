@@ -36,6 +36,13 @@ public abstract class BoxItem extends BoxResource {
     }
 
     /**
+     * @return base URL for current item
+     */
+    protected URL getBaseURL() {
+        return new URLTemplate("").build(this.getAPI().getBaseURL());
+    }
+
+    /**
      * Gets an item that was shared with a shared link.
      * @param  api        the API connection to be used by the shared item.
      * @param  sharedLink the shared link to the item.

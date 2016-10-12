@@ -78,6 +78,14 @@ public class BoxFile extends BoxItem {
         super(api, id);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected URL getBaseURL() {
+        return FILE_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+    }
+
     @Override
     public BoxSharedLink createSharedLink(BoxSharedLink.Access access, Date unshareDate,
         BoxSharedLink.Permissions permissions) {
@@ -679,6 +687,14 @@ public class BoxFile extends BoxItem {
 
         request.setBody(lockObject.toString());
         request.send();
+    }
+
+    /**
+     * Used to retrieve all metadata associated with the file.
+     * @return An iterable of metadata instances associated with the file.
+     */
+    public Iterable<Metadata> getAllMetadata() {
+        return Metadata.getAllMetadata(this);
     }
 
     /**

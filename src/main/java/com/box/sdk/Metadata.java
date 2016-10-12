@@ -14,7 +14,20 @@ import com.eclipsesource.json.JsonValue;
  * https://developers.box.com/metadata-api/
  */
 public class Metadata {
+
+    /**
+     * URL template for all metadata associated with item.
+     */
+    private static final URLTemplate GET_ALL_METADATA_URL_TEMPLATE = new URLTemplate("/metadata");
+
+    /**
+     * Values contained by the metadata object.
+     */
     private final JsonObject values;
+
+    /**
+     * Operations to be applied to the metadata object.
+     */
     private JsonArray operations;
 
     /**
@@ -38,6 +51,23 @@ public class Metadata {
      */
     public Metadata(Metadata other) {
         this.values = new JsonObject(other.values);
+    }
+
+    /**
+     * Used to retrieve all metadata associated with the item.
+     * @param item item to get metadata for.
+     * @return An iterable of metadata instances associated with the item.
+     */
+    public static Iterable<Metadata> getAllMetadata(BoxItem item) {
+        return new BoxResourceIterable<Metadata>(
+                item.getAPI(), GET_ALL_METADATA_URL_TEMPLATE.build(item.getBaseURL().toString()), 100) {
+
+            @Override
+            protected Metadata factory(JsonObject jsonObject) {
+                return new Metadata(jsonObject);
+            }
+
+        };
     }
 
     /**
