@@ -52,6 +52,14 @@ public class BoxFolder extends BoxItem implements Iterable<BoxItem.Info> {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected URL getBaseURL() {
+        return FOLDER_INFO_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+    }
+
+    /**
      * Gets the current user's root folder.
      * @param  api the API connection to be used by the folder.
      * @return     the user's root folder.
@@ -529,6 +537,14 @@ public class BoxFolder extends BoxItem implements Iterable<BoxItem.Info> {
      */
     public BoxWebHook.Info addWebHook(URL address, BoxWebHook.Trigger... triggers) {
         return BoxWebHook.create(this, address, triggers);
+    }
+
+    /**
+     * Used to retrieve all metadata associated with the folder.
+     * @return An iterable of metadata instances associated with the folder
+     */
+    public Iterable<Metadata> getAllMetadata() {
+        return Metadata.getAllMetadata(this);
     }
 
     /**
