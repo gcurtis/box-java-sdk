@@ -39,9 +39,19 @@ public class BoxRetentionPolicy extends BoxResource {
     private static final String TYPE_INDEFINITE = "indefinite";
 
     /**
+     * The default limit of entries per response.
+     */
+    private static final int DEFAULT_LIMIT = 100;
+
+    /**
      * The URL template used for operation with retention policies.
      */
     private static final URLTemplate RETENTION_POLICIES_URL_TEMPLATE = new URLTemplate("retention_policies");
+
+    /**
+     * The URL template used for operation with retention policy assignments.
+     */
+    private static final URLTemplate ASSIGNMENTS_URL_TEMPLATE = new URLTemplate("retention_policies/%s/assignments");
 
     /**
      * Constructs a retention policy for a resource with a given ID.
@@ -101,6 +111,26 @@ public class BoxRetentionPolicy extends BoxResource {
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
         BoxRetentionPolicy createdPolicy = new BoxRetentionPolicy(api, responseJSON.get("id").asString());
         return createdPolicy.new Info(responseJSON);
+    }
+
+    /**
+     * Returns iterable with all assignments of given type of this retention policy.
+     * @param type the type of the retention policy assignment to retrieve. Can either be "folder" or "enterprise".
+     * @return an iterable containing all assignments of given type.
+     */
+    public Iterable<BoxRetentionPolicyAssignment.Info> getAssignments(String type) {
+        QueryStringBuilder queryString = new QueryStringBuilder().appendParam("type", type);
+        URL url = ASSIGNMENTS_URL_TEMPLATE.buildWithQuery(getAPI().getBaseURL(), queryString.toString(), getID());
+        return new BoxResourceIterable<BoxRetentionPolicyAssignment.Info>(getAPI(), url, DEFAULT_LIMIT) {
+
+            @Override
+            protected BoxRetentionPolicyAssignment.Info factory(JsonObject jsonObject) {
+                BoxRetentionPolicyAssignment assignment
+                        = new BoxRetentionPolicyAssignment(getAPI(), jsonObject.get("id").asString());
+                return assignment.new Info(jsonObject);
+            }
+
+        };
     }
 
     /**
