@@ -33,6 +33,12 @@ public class BoxRetentionPolicyAssignment extends BoxResource {
     private static final URLTemplate ASSIGNMENTS_URL_TEMPLATE = new URLTemplate("retention_policy_assignments");
 
     /**
+     * The URL template used for operation with retention policy assignment with given ID.
+     */
+    private static final URLTemplate RETENTION_POLICY_ASSIGNMENT_URL_TEMPLATE
+            = new URLTemplate("retention_policy_assignments/%s");
+
+    /**
      * Constructs a BoxResource for a resource with a given ID.
      *
      * @param api the API connection to be used by the resource.
@@ -86,6 +92,17 @@ public class BoxRetentionPolicyAssignment extends BoxResource {
         BoxRetentionPolicyAssignment createdAssignment
                 = new BoxRetentionPolicyAssignment(api, responseJSON.get("id").asString());
         return createdAssignment.new Info(responseJSON);
+    }
+
+    /**
+     * @return information about this retention policy.
+     */
+    public BoxRetentionPolicyAssignment.Info getInfo() {
+        URL url = RETENTION_POLICY_ASSIGNMENT_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
+        return new Info(responseJSON);
     }
 
     /**

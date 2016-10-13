@@ -126,4 +126,83 @@ public class BoxRetentionPolicyAssignmentTest {
         Assert.assertEquals(assignedByLogin, info.getAssignedBy().getLogin());
         Assert.assertEquals(assignedAt, info.getAssignedAt());
     }
+
+
+    /**
+     * Unit test for {@link BoxRetentionPolicyAssignment#getInfo()}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetInfoSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/retention_policy_assignments/0",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
+
+        BoxRetentionPolicyAssignment assignment = new BoxRetentionPolicyAssignment(api, "0");
+        assignment.getInfo();
+    }
+
+    /**
+     * Unit test for {@link BoxRetentionPolicyAssignment#createAssignmentToFolder(BoxAPIConnection, String, String)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetInfoParseAllFieldsCorrectly() throws ParseException {
+        final String id = "3233225";
+        final String policyID = "32131";
+        final String policyName = "TaxDocuments";
+        final String assignedToType = "folder";
+        final String assignedToID = "99922219";
+        final String assignedByID = "123456789";
+        final String assignedByName = "Sean";
+        final String assignedByLogin = "sean@box.com";
+        final Date assignedAt = BoxDateFormat.parse("2015-07-20T14:28:09-07:00");
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{     \n"
+                + "  \"type\": \"retention_policy_assignment\",    \n"
+                + "  \"id\": \"3233225\",    \n"
+                + "  \"retention_policy\": {   \n"
+                + "    \"type\": \"retention_policy\",    \n"
+                + "    \"id\": \"32131\",   \n"
+                + "    \"policy_name\": \"TaxDocuments\"\n"
+                + "  },    \n"
+                + "  \"assigned_to\": {  \n"
+                + "    \"type\": \"folder\",   \n"
+                + "    \"id\": \"99922219\"   \n"
+                + "  },   \n"
+                + "  \"assigned_by\": {  \n"
+                + "    \"type\": \"user\",    \n"
+                + "    \"id\": \"123456789\",  \n"
+                + "    \"name\": \"Sean\",     \n"
+                + "    \"login\": \"sean@box.com\"     \n"
+                + "  },     \n"
+                + "  \"assigned_at\": \"2015-07-20T14:28:09-07:00\" \n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxRetentionPolicyAssignment assignment = new BoxRetentionPolicyAssignment(api, id);
+        BoxRetentionPolicyAssignment.Info info = assignment.getInfo();
+        Assert.assertEquals(id, info.getID());
+        Assert.assertEquals(policyID, info.getRetentionPolicy().getID());
+        Assert.assertEquals(policyName, info.getRetentionPolicy().getPolicyName());
+        Assert.assertEquals(assignedToType, info.getAssignedToType());
+        Assert.assertEquals(assignedToID, info.getAssignedToID());
+        Assert.assertEquals(assignedByID, info.getAssignedBy().getID());
+        Assert.assertEquals(assignedByName, info.getAssignedBy().getName());
+        Assert.assertEquals(assignedByLogin, info.getAssignedBy().getLogin());
+        Assert.assertEquals(assignedAt, info.getAssignedAt());
+    }
 }
