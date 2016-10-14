@@ -180,4 +180,12 @@ public class BoxFileVersionRetention extends BoxResource {
             }
         }
     }
+
+    public static class QueryFilter {
+        private String fileID;
+        private String fileVersionID;
+        private String policyID;
+        private String dispositionAction;
+        
+    }
 }
