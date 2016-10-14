@@ -9,6 +9,8 @@ import com.eclipsesource.json.JsonValue;
 
 /**
  * Represents a retention policy.
+ * A retention policy blocks permanent deletion of content for a specified amount of time.
+ * Admins can create retention policies and then later assign them to specific folders or their entire enterprise.
  *
  * <p>Unless otherwise noted, the methods in this class can throw an unchecked {@link BoxAPIException} (unchecked
  * meaning that the compiler won't force you to handle it) if an error occurs. If you wish to implement custom error
@@ -152,6 +154,7 @@ public class BoxRetentionPolicy extends BoxResource {
          * Constructs an empty Info object.
          */
         public Info() {
+            super();
         }
 
         /**
