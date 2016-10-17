@@ -138,7 +138,7 @@ public class BoxLegalHoldTest {
     }
 
     /**
-     * Unit test for {@link BoxLegalHold#getAll(BoxAPIConnection, String)}
+     * Unit test for {@link BoxLegalHold#getAll(BoxAPIConnection, String, String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -147,7 +147,8 @@ public class BoxLegalHoldTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policies?policy_name=pol",
+                Assert.assertEquals(
+                        "https://api.box.com/2.0/legal_hold_policies?policy_name=pol&fields=description%2Cstatus",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -158,7 +159,7 @@ public class BoxLegalHoldTest {
             }
         });
 
-        Iterator<BoxLegalHold.Info> iterator = BoxLegalHold.getAll(api, "pol").iterator();
+        Iterator<BoxLegalHold.Info> iterator = BoxLegalHold.getAll(api, "pol", "description", "status").iterator();
         iterator.hasNext();
     }
 

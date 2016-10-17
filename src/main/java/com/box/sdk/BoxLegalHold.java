@@ -68,12 +68,16 @@ public class BoxLegalHold extends BoxResource {
      * Retrieves a list of Legal Hold Policies that belong to your Enterprise as an Iterable.
      * @param api api the API connection to be used by the resource.
      * @param policyName case insensitive prefix-match filter on Policy name.
+     * @param fields the optional fields to retrieve.
      * @return the Iterable of Legal Hold Policies in your Enterprise that match the filter parameters.
      */
-    public static Iterable<BoxLegalHold.Info> getAll(final BoxAPIConnection api, String policyName) {
+    public static Iterable<BoxLegalHold.Info> getAll(final BoxAPIConnection api, String policyName, String ... fields) {
         QueryStringBuilder builder = new QueryStringBuilder();
         if (policyName != null) {
             builder.appendParam("policy_name", policyName);
+        }
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
         }
         return new BoxResourceIterable<BoxLegalHold.Info>(api,
                 ALL_LEGAL_HOLD_URL_TEMPLATE.buildWithQuery(api.getBaseURL(), builder.toString()),
