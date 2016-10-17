@@ -1,10 +1,11 @@
 package com.box.sdk;
 
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
-
+import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
+
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
 
 /**
  * Represents a legal hold policy.
@@ -31,6 +32,17 @@ public class BoxLegalHold extends BoxResource {
      */
     public BoxLegalHold(BoxAPIConnection api, String id) {
         super(api, id);
+    }
+
+    /**
+     * @return information about this legal hold policy.
+     */
+    public Info getInfo() {
+        URL url = LEGAL_HOLD_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
+        return new Info(responseJSON);
     }
 
     /**
@@ -255,7 +267,7 @@ public class BoxLegalHold extends BoxResource {
                     this.status = value.asString();
                 } else if (memberName.equals("release_notes")) {
                     this.releaseNotes = value.asString();
-                } else if (memberName.equals("assignments_count")) {
+                } else if (memberName.equals("assignment_counts")) {
                     JsonObject countsJSON = value.asObject();
                     this.assignmentCountUser = countsJSON.get("user").asInt();
                     this.assignmentCountFolder = countsJSON.get("folder").asInt();
