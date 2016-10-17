@@ -60,6 +60,7 @@ public class BoxLegalHoldTest {
         final Date deletedAt = null;
         final Date filterStartedAt = BoxDateFormat.parse("2016-05-17T01:00:00-07:00");
         final Date filterEndedAt = BoxDateFormat.parse("2016-05-21T01:00:00-07:00");
+        final String releaseNote = "non-empty note";
 
         final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
                 + "  \"type\": \"legal_hold_policy\",\n"
@@ -83,7 +84,8 @@ public class BoxLegalHoldTest {
                 + "  \"modified_at\": \"2016-05-18T11:25:59-07:00\",\n"
                 + "  \"deleted_at\": null,\n"
                 + "  \"filter_started_at\": \"2016-05-17T01:00:00-07:00\",\n"
-                + "  \"filter_ended_at\": \"2016-05-21T01:00:00-07:00\"\n"
+                + "  \"filter_ended_at\": \"2016-05-21T01:00:00-07:00\",\n"
+                + "  \"release_notes\": \"non-empty note\"\n"
                 + "}");
 
         BoxAPIConnection api = new BoxAPIConnection("");
@@ -107,6 +109,6 @@ public class BoxLegalHoldTest {
         Assert.assertEquals(deletedAt, info.getDeletedAt());
         Assert.assertEquals(filterStartedAt, info.getFilterStartedAt());
         Assert.assertEquals(filterEndedAt, info.getFilterEndedAt());
-
+        Assert.assertEquals(releaseNote, info.getReleaseNotes());
     }
 }
