@@ -25,6 +25,11 @@ public class BoxLegalHold extends BoxResource {
     private static final URLTemplate LEGAL_HOLD_URL_TEMPLATE = new URLTemplate("legal_hold_policies/%s");
 
     /**
+     * The URL template used for operation with legal hold policies.
+     */
+    private static final URLTemplate ALL_LEGAL_HOLD_URL_TEMPLATE = new URLTemplate("legal_hold_policies");
+
+    /**
      * Constructs a BoxLegalHold for a resource with a given ID.
      *
      * @param api the API connection to be used by the resource.
@@ -43,6 +48,47 @@ public class BoxLegalHold extends BoxResource {
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
         return new Info(responseJSON);
+    }
+
+    /**
+     * Creates a new Legal Hold Policy.
+     * @param api the API connection to be used by the resource.
+     * @param name the name of Legal Hold Policy.
+     * @return information about the Legal Hold Policy created.
+     */
+    public static BoxLegalHold.Info create(BoxAPIConnection api, String name) {
+        return create(api, name, null, null, null);
+    }
+
+    /**
+     * Creates a new Legal Hold Policy.
+     * @param api the API connection to be used by the resource.
+     * @param name the name of Legal Hold Policy.
+     * @param description the description of Legal Hold Policy.
+     * @param filterStartedAt optional date filter applies to Custodian assignments only.
+     * @param filterEndedAt optional date filter applies to Custodian assignments only.
+     * @return information about the Legal Hold Policy created.
+     */
+    public static BoxLegalHold.Info create(BoxAPIConnection api, String name, String description,
+                                           Date filterStartedAt, Date filterEndedAt) {
+        URL url = ALL_LEGAL_HOLD_URL_TEMPLATE.build(api.getBaseURL());
+        BoxJSONRequest request = new BoxJSONRequest(api, url, "POST");
+        JsonObject requestJSON = new JsonObject()
+                .add("policy_name", name);
+        if (description != null) {
+            requestJSON.add("description", description);
+        }
+        if (filterStartedAt != null) {
+            requestJSON.add("filter_started_at", BoxDateFormat.format(filterStartedAt));
+        }
+        if (filterEndedAt != null) {
+            requestJSON.add("filter_ended_at", BoxDateFormat.format(filterEndedAt));
+        }
+        request.setBody(requestJSON.toString());
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
+        BoxLegalHold createdPolicy = new BoxLegalHold(api, responseJSON.get("id").asString());
+        return createdPolicy.new Info(responseJSON);
     }
 
     /**

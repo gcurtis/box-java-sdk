@@ -111,4 +111,94 @@ public class BoxLegalHoldTest {
         Assert.assertEquals(filterEndedAt, info.getFilterEndedAt());
         Assert.assertEquals(releaseNote, info.getReleaseNotes());
     }
+
+    /**
+     * Unit test for {@link BoxLegalHold#create(BoxAPIConnection, String, String, Date, Date)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testCreateSendsCorrectJSON() throws ParseException {
+        final String name = "policy";
+        final String description = "some description";
+        final Date startedAt = BoxDateFormat.parse("2014-05-11T00:00:00+0000");
+        final Date endedAt = BoxDateFormat.parse("2016-05-11T00:00:00+0000");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new JSONRequestInterceptor() {
+            @Override
+            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policies", request.getUrl().toString());
+                Assert.assertEquals(name, json.get("policy_name").asString());
+                Assert.assertEquals(description, json.get("description").asString());
+                try {
+                    Assert.assertEquals(startedAt, BoxDateFormat.parse(json.get("filter_started_at").asString()));
+                    Assert.assertEquals(endedAt, BoxDateFormat.parse(json.get("filter_ended_at").asString()));
+                } catch (ParseException e) {
+                    assert false;
+                }
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
+
+        BoxLegalHold.create(api, name, description, startedAt, endedAt);
+    }
+
+    /**
+     * Unit test for {@link BoxLegalHold#create(BoxAPIConnection, String)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testCreateParseAllFieldsCorrectly() throws ParseException {
+        final String id = "166921";
+        final String name = "Policy 3";
+        final String description = "postman created policy";
+        final String userID = "2030388321";
+        final String userName = "Ryan Churchill";
+        final String userLogin = "rchurchill+deventerprise@box.com";
+        final Date createdAt = BoxDateFormat.parse("2016-05-18T16:18:49-07:00");
+        final Date modifiedAt = BoxDateFormat.parse("2016-05-18T16:18:49-07:00");
+        final Date deletedAt = null;
+        final Date filterStartedAt = BoxDateFormat.parse("2016-05-11T01:00:00-07:00");
+        final Date filterEndedAt = BoxDateFormat.parse("2016-05-13T01:00:00-07:00");
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"type\": \"legal_hold_policy\",\n"
+                + "  \"id\": \"166921\",\n"
+                + "  \"policy_name\": \"Policy 3\",\n"
+                + "  \"description\": \"postman created policy\",\n"
+                + "  \"created_by\": {\n"
+                + "    \"type\": \"user\",\n"
+                + "    \"id\": \"2030388321\",\n"
+                + "    \"name\": \"Ryan Churchill\",\n"
+                + "    \"login\": \"rchurchill+deventerprise@box.com\"\n"
+                + "  },\n"
+                + "  \"created_at\": \"2016-05-18T16:18:49-07:00\",\n"
+                + "  \"modified_at\": \"2016-05-18T16:18:49-07:00\",\n"
+                + "  \"deleted_at\": null,\n"
+                + "  \"filter_started_at\": \"2016-05-11T01:00:00-07:00\",\n"
+                + "  \"filter_ended_at\": \"2016-05-13T01:00:00-07:00\"\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxLegalHold.Info info = BoxLegalHold.create(api, name);
+        Assert.assertEquals(id, info.getID());
+        Assert.assertEquals(name, info.getPolicyName());
+        Assert.assertEquals(description, info.getDescription());
+        Assert.assertEquals(userID, info.getCreatedBy().getID());
+        Assert.assertEquals(userName, info.getCreatedBy().getName());
+        Assert.assertEquals(userLogin, info.getCreatedBy().getLogin());
+        Assert.assertEquals(createdAt, info.getCreatedAt());
+        Assert.assertEquals(modifiedAt, info.getModifiedAt());
+        Assert.assertEquals(deletedAt, info.getDeletedAt());
+        Assert.assertEquals(filterStartedAt, info.getFilterStartedAt());
+        Assert.assertEquals(filterEndedAt, info.getFilterEndedAt());
+
+    }
 }
