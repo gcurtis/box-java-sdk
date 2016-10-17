@@ -46,6 +46,20 @@ public class BoxLegalHold extends BoxResource {
     }
 
     /**
+     * Updates the information about this retention policy with modified locally info.
+     * Only policy_name, description and release_notes can be modified.
+     * @param info the updated info.
+     */
+    public void update(BoxLegalHold.Info info) {
+        URL url = LEGAL_HOLD_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxJSONRequest request = new BoxJSONRequest(this.getAPI(), url, "PUT");
+        request.setBody(info.getPendingChanges());
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
+        info.update(responseJSON);
+    }
+
+    /**
      * Contains information about the legal hold policy.
      */
     public class Info extends BoxResource.Info {
