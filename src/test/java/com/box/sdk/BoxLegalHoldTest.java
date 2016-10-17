@@ -2,6 +2,7 @@ package com.box.sdk;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -110,5 +111,100 @@ public class BoxLegalHoldTest {
         Assert.assertEquals(filterStartedAt, info.getFilterStartedAt());
         Assert.assertEquals(filterEndedAt, info.getFilterEndedAt());
         Assert.assertEquals(releaseNote, info.getReleaseNotes());
+    }
+
+    /**
+     * Unit test for {@link BoxLegalHold#getAll(BoxAPIConnection)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetAllSendsCorrectRequestWithoutParams() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policies", request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"entries\": []}";
+                    }
+                };
+            }
+        });
+
+        Iterator<BoxLegalHold.Info> iterator = BoxLegalHold.getAll(api).iterator();
+        iterator.hasNext();
+    }
+
+    /**
+     * Unit test for {@link BoxLegalHold#getAll(BoxAPIConnection, String)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetAllSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policies?policy_name=pol",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"entries\": []}";
+                    }
+                };
+            }
+        });
+
+        Iterator<BoxLegalHold.Info> iterator = BoxLegalHold.getAll(api, "pol").iterator();
+        iterator.hasNext();
+    }
+
+    /**
+     * Unit test for {@link BoxLegalHold#getAll(BoxAPIConnection)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetAllParseAllFieldsCorrectly() {
+        final String firstPolicyID = "166877";
+        final String firstPolicyName = "Policy 1";
+        final String secondPolicyID = "166881";
+        final String secondPolicyName = "Policy 2";
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"entries\": [\n"
+                + "    {\n"
+                + "      \"type\": \"legal_hold_policy\",\n"
+                + "      \"id\": \"166877\",\n"
+                + "      \"policy_name\": \"Policy 1\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"type\": \"legal_hold_policy\",\n"
+                + "      \"id\": \"166881\",\n"
+                + "      \"policy_name\": \"Policy 2\"\n"
+                + "    }\n"
+                + "  ],\n"
+                + "  \"limit\": 3,\n"
+                + "  \"order\": [\n"
+                + "    {\n"
+                + "      \"by\": \"policy_name\",\n"
+                + "      \"direction\": \"ASC\"\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        Iterator<BoxLegalHold.Info> iterator = BoxLegalHold.getAll(api).iterator();
+        BoxLegalHold.Info info = iterator.next();
+        Assert.assertEquals(firstPolicyID, info.getID());
+        Assert.assertEquals(firstPolicyName, info.getPolicyName());
+        info = iterator.next();
+        Assert.assertEquals(secondPolicyID, info.getID());
+        Assert.assertEquals(secondPolicyName, info.getPolicyName());
+        Assert.assertEquals(false, iterator.hasNext());
     }
 }

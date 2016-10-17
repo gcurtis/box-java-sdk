@@ -25,6 +25,16 @@ public class BoxLegalHold extends BoxResource {
     private static final URLTemplate LEGAL_HOLD_URL_TEMPLATE = new URLTemplate("legal_hold_policies/%s");
 
     /**
+     * The URL template used for operation with legal hold policies.
+     */
+    private static final URLTemplate ALL_LEGAL_HOLD_URL_TEMPLATE = new URLTemplate("legal_hold_policies");
+
+    /**
+     * The default limit of entries per response.
+     */
+    private static final int DEFAULT_LIMIT = 100;
+
+    /**
      * Constructs a BoxLegalHold for a resource with a given ID.
      *
      * @param api the API connection to be used by the resource.
@@ -43,6 +53,38 @@ public class BoxLegalHold extends BoxResource {
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
         return new Info(responseJSON);
+    }
+
+    /**
+     * Retrieves a list of Legal Hold Policies that belong to your Enterprise as an Iterable.
+     * @param api api the API connection to be used by the resource.
+     * @return the Iterable of Legal Hold Policies in your Enterprise.
+     */
+    public static Iterable<BoxLegalHold.Info> getAll(final BoxAPIConnection api) {
+        return getAll(api, null);
+    }
+
+    /**
+     * Retrieves a list of Legal Hold Policies that belong to your Enterprise as an Iterable.
+     * @param api api the API connection to be used by the resource.
+     * @param policyName case insensitive prefix-match filter on Policy name.
+     * @return the Iterable of Legal Hold Policies in your Enterprise that match the filter parameters.
+     */
+    public static Iterable<BoxLegalHold.Info> getAll(final BoxAPIConnection api, String policyName) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (policyName != null) {
+            builder.appendParam("policy_name", policyName);
+        }
+        return new BoxResourceIterable<BoxLegalHold.Info>(api,
+                ALL_LEGAL_HOLD_URL_TEMPLATE.buildWithQuery(api.getBaseURL(), builder.toString()),
+                DEFAULT_LIMIT) {
+
+            @Override
+            protected BoxLegalHold.Info factory(JsonObject jsonObject) {
+                BoxLegalHold policy = new BoxLegalHold(api, jsonObject.get("id").asString());
+                return policy.new Info(jsonObject);
+            }
+        };
     }
 
     /**
