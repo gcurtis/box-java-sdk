@@ -122,6 +122,7 @@ public class BoxRetentionPolicyAssignment extends BoxResource {
          * Constructs an empty Info object.
          */
         public Info() {
+            super();
         }
 
         /**
