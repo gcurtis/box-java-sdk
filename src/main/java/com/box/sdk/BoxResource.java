@@ -54,6 +54,8 @@ public abstract class BoxResource {
         result.put(getResourceType(BoxWebHook.class), BoxWebHook.class);
         result.put(getResourceType(BoxLegalHold.class), BoxLegalHold.class);
         result.put(getResourceType(BoxLegalHoldAssignment.class), BoxLegalHoldAssignment.class);
+        result.put(getResourceType(BoxRetentionPolicy.class), BoxRetentionPolicy.class);
+        result.put(getResourceType(BoxRetentionPolicyAssignment.class), BoxRetentionPolicyAssignment.class);
         return Collections.unmodifiableMap(result);
     }
 

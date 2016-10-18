@@ -2,6 +2,7 @@ package com.box.sdk;
 
 @BoxResourceType("legal_hold_assignment")
 public class BoxLegalHoldAssignment extends BoxResource {
+
     /**
      * Constructs a BoxLegalHoldAssignment for a resource with a given ID.
      *
