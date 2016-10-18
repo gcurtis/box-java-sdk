@@ -92,6 +92,16 @@ public class BoxLegalHold extends BoxResource {
     }
 
     /**
+     * Deletes the legal hold policy.
+     */
+    public void delete() {
+        URL url = LEGAL_HOLD_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "DELETE");
+        BoxAPIResponse response = request.send();
+        response.disconnect();
+    }
+
+    /**
      * Contains information about the legal hold policy.
      */
     public class Info extends BoxResource.Info {

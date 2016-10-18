@@ -201,4 +201,29 @@ public class BoxLegalHoldTest {
         Assert.assertEquals(filterEndedAt, info.getFilterEndedAt());
 
     }
+
+    /**
+     * Unit test for {@link BoxLegalHold#delete()}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testDeleteSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policies/0", request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "";
+                    }
+                };
+            }
+        });
+
+        BoxLegalHold policy = new BoxLegalHold(api, "0");
+        policy.delete();
+    }
+
 }
