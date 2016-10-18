@@ -19,6 +19,31 @@ import com.eclipsesource.json.JsonValue;
 public class BoxLegalHoldAssignment extends BoxResource {
 
     /**
+     * Used to assign legal hold policy to file version.
+     */
+    public static final String TYPE_FILE_VERSION = "file_version";
+
+    /**
+     * Used to assign legal hold policy to file.
+     */
+    public static final String TYPE_FILE = "file";
+
+    /**
+     * Used to assign legal hold policy to folder.
+     */
+    public static final String TYPE_FOLDER = "folder";
+
+    /**
+     * Used to assign legal hold policy to user.
+     */
+    public static final String TYPE_USER = "user";
+
+    /**
+     * The URL template used for operation with legal hold policy assignments.
+     */
+    private static final URLTemplate ASSIGNMENTS_URL_TEMPLATE = new URLTemplate("legal_hold_policy_assignments");
+
+    /**
      * The URL template used for operation with legal hold policy assignment with given ID.
      */
     private static final URLTemplate LEGAL_HOLD_ASSIGNMENT_URL_TEMPLATE
@@ -32,6 +57,31 @@ public class BoxLegalHoldAssignment extends BoxResource {
      */
     public BoxLegalHoldAssignment(BoxAPIConnection api, String id) {
         super(api, id);
+    }
+
+    /**
+     * Creates new legal hold policy assignment.
+     * @param api the API connection to be used by the resource.
+     * @param policyID ID of policy to create assignment for.
+     * @param resourceType type of target resource. Can be 'file_version', 'file', 'folder', or 'user'.
+     * @param resourceID ID of the target resource.
+     * @return info about created legal hold policy assignment.
+     */
+    public static BoxLegalHoldAssignment.Info create(BoxAPIConnection api,
+                                                     String policyID, String resourceType, String resourceID) {
+        URL url = ASSIGNMENTS_URL_TEMPLATE.build(api.getBaseURL());
+        BoxJSONRequest request = new BoxJSONRequest(api, url, "POST");
+
+        JsonObject requestJSON = new JsonObject()
+                .add("policy_id", policyID)
+                .add("assign_to", new JsonObject()
+                        .add("type", resourceType)
+                        .add("id", resourceID));
+        request.setBody(requestJSON.toString());
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
+        BoxLegalHoldAssignment createdAssignment = new BoxLegalHoldAssignment(api, responseJSON.get("id").asString());
+        return createdAssignment.new Info(responseJSON);
     }
 
     /**
