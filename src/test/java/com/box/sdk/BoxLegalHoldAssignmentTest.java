@@ -93,6 +93,82 @@ public class BoxLegalHoldAssignmentTest {
         Assert.assertEquals(assignedByLogin, info.getAssignedBy().getLogin());
         Assert.assertEquals(assignedAt, info.getAssignedAt());
         Assert.assertEquals(deletedAt, info.getDeletedAt());
+    }
+
+    /**
+     * Unit test for {@link BoxLegalHoldAssignment#create(BoxAPIConnection, String, String, String)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testCreateSendsCorrectJSON() {
+        final String policyID = "0";
+        final String resourceType = BoxLegalHoldAssignment.TYPE_FILE_VERSION;
+        final String resourceID = "1";
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new JSONRequestInterceptor() {
+            @Override
+            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policy_assignments",
+                        request.getUrl().toString());
+                Assert.assertEquals(policyID, json.get("policy_id").asString());
+                Assert.assertEquals(resourceType, json.get("assign_to").asObject().get("type").asString());
+                Assert.assertEquals(resourceID, json.get("assign_to").asObject().get("id").asString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
+
+        BoxLegalHoldAssignment.create(api, policyID, resourceType, resourceID);
+    }
+
+    /**
+     * Unit test for {@link BoxLegalHoldAssignment#create(BoxAPIConnection, String, String, String)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testCreateParseAllFieldsCorrectly() throws ParseException {
+        final String id = "255613";
+        final String policyID = "166757";
+        final String policyName = "Bug Bash 5-12 Policy 3 updated";
+        final String assignedToType = BoxLegalHoldAssignment.TYPE_FILE;
+        final String assignedToID = "5025127885";
+        final String assignedByID = "2030388321";
+        final String assignedByName = "Steve Boxuser";
+        final String assignedByLogin = "sboxuser@box.com";
+        final Date assignedAt = BoxDateFormat.parse("2016-05-18T17:38:03-07:00");
+        final Date deletedAt = null;
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"type\": \"legal_hold_policy_assignment\",\n"
+                + "  \"id\": \"255613\",\n"
+                + "  \"legal_hold_policy\": {\n"
+                + "    \"type\": \"legal_hold_policy\",\n"
+                + "    \"id\": \"166757\",\n"
+                + "    \"policy_name\": \"Bug Bash 5-12 Policy 3 updated\"\n"
+                + "  },\n"
+                + "  \"assigned_to\": {\n"
+                + "    \"type\": \"file\",\n"
+                + "    \"id\": \"5025127885\"\n"
+                + "  },\n"
+                + "  \"assigned_by\": {\n"
+                + "    \"type\": \"user\",\n"
+                + "    \"id\": \"2030388321\",\n"
+                + "    \"name\": \"Steve Boxuser\",\n"
+                + "    \"login\": \"sboxuser@box.com\"\n"
+                + "  },\n"
+                + "  \"assigned_at\": \"2016-05-18T17:38:03-07:00\",\n"
+                + "  \"deleted_at\": null\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxLegalHoldAssignment.Info info = BoxLegalHoldAssignment.create(api, policyID, assignedToType, assignedToID);
 
     }
 }

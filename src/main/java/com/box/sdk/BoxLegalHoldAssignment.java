@@ -85,6 +85,16 @@ public class BoxLegalHoldAssignment extends BoxResource {
     }
 
     /**
+     * Deletes the legal hold policy assignment.
+     */
+    public void delete() {
+        URL url = LEGAL_HOLD_ASSIGNMENT_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "DELETE");
+        BoxAPIResponse response = request.send();
+        response.disconnect();
+    }
+
+    /**
      * @return information about this retention policy.
      */
     public BoxLegalHoldAssignment.Info getInfo() {
