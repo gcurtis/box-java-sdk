@@ -1,5 +1,6 @@
 package com.box.sdk;
 
+import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -18,6 +19,12 @@ import com.eclipsesource.json.JsonValue;
 public class BoxLegalHoldAssignment extends BoxResource {
 
     /**
+     * The URL template used for operation with legal hold policy assignment with given ID.
+     */
+    private static final URLTemplate LEGAL_HOLD_ASSIGNMENT_URL_TEMPLATE
+            = new URLTemplate("legal_hold_policy_assignments/%s");
+
+    /**
      * Constructs a BoxLegalHoldAssignment for a resource with a given ID.
      *
      * @param api the API connection to be used by the resource.
@@ -25,6 +32,17 @@ public class BoxLegalHoldAssignment extends BoxResource {
      */
     public BoxLegalHoldAssignment(BoxAPIConnection api, String id) {
         super(api, id);
+    }
+
+    /**
+     * @return information about this retention policy.
+     */
+    public BoxLegalHoldAssignment.Info getInfo() {
+        URL url = LEGAL_HOLD_ASSIGNMENT_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
+        return new Info(responseJSON);
     }
 
     /**
