@@ -46,7 +46,7 @@ import com.eclipsesource.json.JsonObject;
 public class BoxFileTest {
 
     /**
-     * Unit test for {@link BoxFile#getAllMetadata()}.
+     * Unit test for {@link BoxFile#getAllMetadata(String...)}.
      */
     @Test
     @Category(UnitTest.class)
@@ -55,7 +55,8 @@ public class BoxFileTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/files/5010739061/metadata?limit=100",
+                Assert.assertEquals(
+                        "https://api.box.com/2.0/files/5010739061/metadata?fields=name%2Cdescription&limit=100",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -67,12 +68,12 @@ public class BoxFileTest {
         });
 
         BoxFile file = new BoxFile(api, "5010739061");
-        Iterator<Metadata> iterator = file.getAllMetadata().iterator();
+        Iterator<Metadata> iterator = file.getAllMetadata("name", "description").iterator();
         iterator.hasNext();
     }
 
     /**
-     * Unit test for {@link BoxFile#getAllMetadata()}.
+     * Unit test for {@link BoxFile#getAllMetadata(String...)}.
      */
     @Test
     @Category(UnitTest.class)

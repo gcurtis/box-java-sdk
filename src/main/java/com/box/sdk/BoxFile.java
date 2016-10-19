@@ -691,10 +691,11 @@ public class BoxFile extends BoxItem {
 
     /**
      * Used to retrieve all metadata associated with the file.
+     * @param fields the optional fields to retrieve.
      * @return An iterable of metadata instances associated with the file.
      */
-    public Iterable<Metadata> getAllMetadata() {
-        return Metadata.getAllMetadata(this);
+    public Iterable<Metadata> getAllMetadata(String ... fields) {
+        return Metadata.getAllMetadata(this, fields);
     }
 
     /**

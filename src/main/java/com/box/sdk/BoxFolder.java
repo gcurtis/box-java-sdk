@@ -541,10 +541,11 @@ public class BoxFolder extends BoxItem implements Iterable<BoxItem.Info> {
 
     /**
      * Used to retrieve all metadata associated with the folder.
+     * @param fields the optional fields to retrieve.
      * @return An iterable of metadata instances associated with the folder
      */
-    public Iterable<Metadata> getAllMetadata() {
-        return Metadata.getAllMetadata(this);
+    public Iterable<Metadata> getAllMetadata(String ... fields) {
+        return Metadata.getAllMetadata(this, fields);
     }
 
     /**

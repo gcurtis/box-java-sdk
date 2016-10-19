@@ -211,7 +211,7 @@ public class BoxFolderTest {
     }
 
     /**
-     * Unit test for {@link BoxFolder#getAllMetadata()}.
+     * Unit test for {@link BoxFolder#getAllMetadata(String...)}.
      */
     @Test
     @Category(UnitTest.class)
@@ -220,7 +220,7 @@ public class BoxFolderTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/folders/5010739061/metadata?limit=100",
+                Assert.assertEquals("https://api.box.com/2.0/folders/5010739061/metadata?fields=name%2Csize&limit=100",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -232,12 +232,12 @@ public class BoxFolderTest {
         });
 
         BoxFolder folder = new BoxFolder(api, "5010739061");
-        Iterator<Metadata> iterator = folder.getAllMetadata().iterator();
+        Iterator<Metadata> iterator = folder.getAllMetadata("name", "size").iterator();
         iterator.hasNext();
     }
 
     /**
-     * Unit test for {@link BoxFolder#getAllMetadata()}.
+     * Unit test for {@link BoxFolder#getAllMetadata(String...)}.
      */
     @Test
     @Category(UnitTest.class)
