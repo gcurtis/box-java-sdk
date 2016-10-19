@@ -169,6 +169,40 @@ public class BoxLegalHoldAssignmentTest {
         api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
 
         BoxLegalHoldAssignment.Info info = BoxLegalHoldAssignment.create(api, policyID, assignedToType, assignedToID);
+        Assert.assertEquals(id, info.getID());
+        Assert.assertEquals(policyID, info.getLegalHold().getID());
+        Assert.assertEquals(policyName, info.getLegalHold().getPolicyName());
+        Assert.assertEquals(assignedToType, info.getAssignedToType());
+        Assert.assertEquals(assignedToID, info.getAssignedToID());
+        Assert.assertEquals(assignedByID, info.getAssignedBy().getID());
+        Assert.assertEquals(assignedByName, info.getAssignedBy().getName());
+        Assert.assertEquals(assignedByLogin, info.getAssignedBy().getLogin());
+        Assert.assertEquals(assignedAt, info.getAssignedAt());
+        Assert.assertEquals(deletedAt, info.getDeletedAt());
+    }
 
+    /**
+     * Unit test for {@link BoxLegalHoldAssignment#delete()}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testDeleteSendsCorrectJSON() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policy_assignments/0",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
+
+        BoxLegalHoldAssignment assignment = new BoxLegalHoldAssignment(api, "0");
+        assignment.delete();
     }
 }
