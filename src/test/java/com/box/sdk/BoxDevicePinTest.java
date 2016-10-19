@@ -83,7 +83,7 @@ public class BoxDevicePinTest {
     }
 
     /**
-     * Unit test for {@link BoxDevicePin#getEnterpriceDevicePins(BoxAPIConnection, String)}.
+     * Unit test for {@link BoxDevicePin#getEnterpriceDevicePins(BoxAPIConnection, String, String...)}.
      */
     @Test(expected = NoSuchElementException.class)
     @Category(UnitTest.class)
@@ -92,7 +92,8 @@ public class BoxDevicePinTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/enterprises/0/device_pinners?limit=100",
+                Assert.assertEquals(
+                        "https://api.box.com/2.0/enterprises/0/device_pinners?fields=owned_by%2Cproduct_name&limit=100",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -103,12 +104,12 @@ public class BoxDevicePinTest {
             }
         });
 
-        Iterator iterator = BoxDevicePin.getEnterpriceDevicePins(api, "0").iterator();
+        Iterator iterator = BoxDevicePin.getEnterpriceDevicePins(api, "0", "owned_by", "product_name").iterator();
         iterator.next();
     }
 
     /**
-     * Unit test for {@link BoxDevicePin#getEnterpriceDevicePins(BoxAPIConnection, String)}.
+     * Unit test for {@link BoxDevicePin#getEnterpriceDevicePins(BoxAPIConnection, String, String...)}.
      */
     @Test
     @Category(UnitTest.class)

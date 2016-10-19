@@ -59,24 +59,18 @@ public class BoxDevicePin extends BoxResource {
      * Must be an enterprise admin with the manage enterprise scope to make this call.
      * @param api API used to connect the Box.
      * @param enterpriseID ID of the enterprise to get all the device pins within.
-     * @return iterable with all the device pins within a given enterprise.
-     */
-    public static Iterable<BoxDevicePin.Info> getEnterpriceDevicePins(final BoxAPIConnection api, String enterpriseID) {
-        return getEnterpriceDevicePins(api, enterpriseID, DEVICES_DEFAULT_LIMIT);
-    }
-
-    /**
-     * Returns iterable with all the device pins within a given enterprise.
-     * Must be an enterprise admin with the manage enterprise scope to make this call.
-     * @param api API used to connect the Box.
-     * @param enterpriseID ID of the enterprise to get all the device pins within.
-     * @param limit the maximum number of items to return in a page.
+     * @param fields the optional fields to retrieve.
      * @return iterable with all the device pins within a given enterprise.
      */
     public static Iterable<BoxDevicePin.Info> getEnterpriceDevicePins(final BoxAPIConnection api, String enterpriseID,
-                                                                      int limit) {
-        return new BoxResourceIterable<BoxDevicePin.Info>(api, ENTERPRISE_DEVICE_PINS_TEMPLATE.build(api.getBaseURL(),
-                enterpriseID), limit) {
+                                                                      String ... fields) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
+        return new BoxResourceIterable<BoxDevicePin.Info>(api,
+                ENTERPRISE_DEVICE_PINS_TEMPLATE.buildWithQuery(api.getBaseURL(), builder.toString(), enterpriseID),
+                DEVICES_DEFAULT_LIMIT) {
 
             @Override
             protected BoxDevicePin.Info factory(JsonObject jsonObject) {
