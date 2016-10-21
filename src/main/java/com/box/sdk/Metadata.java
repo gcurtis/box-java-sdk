@@ -71,7 +71,7 @@ public class Metadata {
         }
         return new BoxResourceIterable<Metadata>(
                 item.getAPI(),
-                GET_ALL_METADATA_URL_TEMPLATE.buildWithQuery(item.getBaseURL().toString(), builder.toString()),
+                GET_ALL_METADATA_URL_TEMPLATE.buildWithQuery(item.getItemURL().toString(), builder.toString()),
                 DEFAULT_LIMIT) {
 
             @Override

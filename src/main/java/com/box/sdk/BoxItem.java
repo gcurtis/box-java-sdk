@@ -36,9 +36,9 @@ public abstract class BoxItem extends BoxResource {
     }
 
     /**
-     * @return base URL for current item
+     * @return URL for the current object, constructed as base URL pus an item specifier.
      */
-    protected URL getBaseURL() {
+    protected URL getItemURL() {
         return new URLTemplate("").build(this.getAPI().getBaseURL());
     }
 
