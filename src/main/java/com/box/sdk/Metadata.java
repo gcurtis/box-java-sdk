@@ -14,7 +14,25 @@ import com.eclipsesource.json.JsonValue;
  * https://developers.box.com/metadata-api/
  */
 public class Metadata {
+
+    /**
+     * The default limit of entries per response.
+     */
+    public static final int DEFAULT_LIMIT = 100;
+
+    /**
+     * URL template for all metadata associated with item.
+     */
+    private static final URLTemplate GET_ALL_METADATA_URL_TEMPLATE = new URLTemplate("/metadata");
+
+    /**
+     * Values contained by the metadata object.
+     */
     private final JsonObject values;
+
+    /**
+     * Operations to be applied to the metadata object.
+     */
     private JsonArray operations;
 
     /**
@@ -38,6 +56,30 @@ public class Metadata {
      */
     public Metadata(Metadata other) {
         this.values = new JsonObject(other.values);
+    }
+
+    /**
+     * Used to retrieve all metadata associated with the item.
+     * @param item item to get metadata for.
+     * @param fields the optional fields to retrieve.
+     * @return An iterable of metadata instances associated with the item.
+     */
+    public static Iterable<Metadata> getAllMetadata(BoxItem item, String ... fields) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
+        return new BoxResourceIterable<Metadata>(
+                item.getAPI(),
+                GET_ALL_METADATA_URL_TEMPLATE.buildWithQuery(item.getItemURL().toString(), builder.toString()),
+                DEFAULT_LIMIT) {
+
+            @Override
+            protected Metadata factory(JsonObject jsonObject) {
+                return new Metadata(jsonObject);
+            }
+
+        };
     }
 
     /**
