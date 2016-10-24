@@ -20,12 +20,12 @@ public class BoxRetentionPolicyAssignment extends BoxResource {
     /**
      * Type for folder policy assignment.
      */
-    private static final String TYPE_FOLDER = "folder";
+    public static final String TYPE_FOLDER = "folder";
 
     /**
      * Type for enterprise policy assignment.
      */
-    private static final String TYPE_ENTERPRISE = "enterprise";
+    public static final String TYPE_ENTERPRISE = "enterprise";
 
     /**
      * The URL template used for operation with retention policy assignments.

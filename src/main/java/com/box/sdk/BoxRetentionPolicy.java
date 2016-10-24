@@ -116,12 +116,34 @@ public class BoxRetentionPolicy extends BoxResource {
     }
 
     /**
-     * Returns iterable with all assignments of given type of this retention policy.
-     * @param type the type of the retention policy assignment to retrieve. Can either be "folder" or "enterprise".
+     * Returns iterable with all folder assignments of given type of this retention policy.
+     * @param fields the fields to retrieve.
      * @return an iterable containing all assignments of given type.
      */
-    public Iterable<BoxRetentionPolicyAssignment.Info> getAssignments(String type) {
+    public Iterable<BoxRetentionPolicyAssignment.Info> getFolderAssignments(String ... fields) {
+        return this.getAssignments(BoxRetentionPolicyAssignment.TYPE_FOLDER, fields);
+    }
+
+    /**
+     * Returns iterable with all enterprise assignments of given type of this retention policy.
+     * @param fields the fields to retrieve.
+     * @return an iterable containing all assignments of given type.
+     */
+    public Iterable<BoxRetentionPolicyAssignment.Info> getEnterpriseAssignments(String ... fields) {
+        return this.getAssignments(BoxRetentionPolicyAssignment.TYPE_ENTERPRISE, fields);
+    }
+
+    /**
+     * Returns iterable with all assignments of given type of this retention policy.
+     * @param type the type of the retention policy assignment to retrieve. Can either be "folder" or "enterprise".
+     * @param fields the fields to retrieve.
+     * @return an iterable containing all assignments of given type.
+     */
+    private Iterable<BoxRetentionPolicyAssignment.Info> getAssignments(String type, String ... fields) {
         QueryStringBuilder queryString = new QueryStringBuilder().appendParam("type", type);
+        if (fields.length > 0) {
+            queryString.appendParam("fields", fields);
+        }
         URL url = ASSIGNMENTS_URL_TEMPLATE.buildWithQuery(getAPI().getBaseURL(), queryString.toString(), getID());
         return new BoxResourceIterable<BoxRetentionPolicyAssignment.Info>(getAPI(), url, DEFAULT_LIMIT) {
 

@@ -131,16 +131,17 @@ public class BoxRetentionPolicyTest {
     }
 
     /**
-     * Unit test for {@link BoxRetentionPolicy#getAssignments(String)}
+     * Unit test for {@link BoxRetentionPolicy#getFolderAssignments(String...)}
      */
     @Test
     @Category(UnitTest.class)
-    public void testGetAssignmentsSendsCorrectRequest() {
+    public void testGetFolderAssignmentsSendsCorrectRequest() {
         BoxAPIConnection api = new BoxAPIConnection("");
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/retention_policies/0/assignments?type=folder",
+                Assert.assertEquals(
+                        "https://api.box.com/2.0/retention_policies/0/assignments?type=folder&fields=assigned_by",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -152,16 +153,44 @@ public class BoxRetentionPolicyTest {
         });
 
         BoxRetentionPolicy policy = new BoxRetentionPolicy(api, "0");
-        Iterator<BoxRetentionPolicyAssignment.Info> iterator = policy.getAssignments("folder").iterator();
+        Iterator<BoxRetentionPolicyAssignment.Info> iterator = policy.getFolderAssignments("assigned_by").iterator();
         iterator.hasNext();
     }
 
     /**
-     * Unit test for {@link BoxRetentionPolicy#getAssignments(String)}
+     * Unit test for {@link BoxRetentionPolicy#getEnterpriseAssignments(String...)}
      */
     @Test
     @Category(UnitTest.class)
-    public void testGetAssignmentsParseAllFieldsCorrectly() {
+    public void testGetEnterpriseAssignmentsSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals(
+                        "https://api.box.com/2.0/retention_policies/0/assignments?type=enterprise&fields=assigned_by",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"entries\": []}";
+                    }
+                };
+            }
+        });
+
+        BoxRetentionPolicy policy = new BoxRetentionPolicy(api, "0");
+        Iterator<BoxRetentionPolicyAssignment.Info> iterator
+                = policy.getEnterpriseAssignments("assigned_by").iterator();
+        iterator.hasNext();
+    }
+
+    /**
+     * Unit test for {@link BoxRetentionPolicy#getFolderAssignments(String...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetFolderAssignmentsParseAllFieldsCorrectly() {
         final String firstID = "12345678";
         final String secondID = "23456789";
 
@@ -182,7 +211,42 @@ public class BoxRetentionPolicyTest {
         api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
 
         BoxRetentionPolicy policy = new BoxRetentionPolicy(api, "0");
-        Iterator<BoxRetentionPolicyAssignment.Info> iterator = policy.getAssignments("folder").iterator();
+        Iterator<BoxRetentionPolicyAssignment.Info> iterator = policy.getFolderAssignments().iterator();
+        BoxRetentionPolicyAssignment.Info info = iterator.next();
+        Assert.assertEquals(firstID, info.getID());
+        info = iterator.next();
+        Assert.assertEquals(secondID, info.getID());
+        Assert.assertEquals(false, iterator.hasNext());
+
+    }
+
+    /**
+     * Unit test for {@link BoxRetentionPolicy#getEnterpriseAssignments(String...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetEnterpriseAssignmentsParseAllFieldsCorrectly() {
+        final String firstID = "12345678";
+        final String secondID = "23456789";
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"entries\": [\n"
+                + "    {\n"
+                + "      \"type\": \"retention_policy_assignment\",\n"
+                + "      \"id\": \"12345678\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"type\": \"retention_policy_assignment\",\n"
+                + "      \"id\": \"23456789\"\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxRetentionPolicy policy = new BoxRetentionPolicy(api, "0");
+        Iterator<BoxRetentionPolicyAssignment.Info> iterator = policy.getEnterpriseAssignments().iterator();
         BoxRetentionPolicyAssignment.Info info = iterator.next();
         Assert.assertEquals(firstID, info.getID());
         info = iterator.next();
