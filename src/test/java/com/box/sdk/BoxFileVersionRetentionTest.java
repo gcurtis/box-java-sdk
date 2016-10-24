@@ -96,7 +96,7 @@ public class BoxFileVersionRetentionTest {
     }
 
     /**
-     * Unit test for {@link BoxFileVersionRetention#getAll(BoxAPIConnection)}
+     * Unit test for {@link BoxFileVersionRetention#getAll(BoxAPIConnection, String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -120,7 +120,7 @@ public class BoxFileVersionRetentionTest {
 
     /**
      * Unit test for
-     * {@link BoxFileVersionRetention#getRetentions(BoxAPIConnection, BoxFileVersionRetention.QueryFilter)}
+     * {@link BoxFileVersionRetention#getRetentions(BoxAPIConnection, BoxFileVersionRetention.QueryFilter, String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -129,7 +129,8 @@ public class BoxFileVersionRetentionTest {
                 + "?file_id=0&file_version_id=1&policy_id=2"
                 + "&disposition_action=permanently_delete"
                 + "&disposition_before=2016-09-15T13%3A15%3A35%2B0000"
-                + "&disposition_after=2014-09-15T13%3A15%3A35%2B0000";
+                + "&disposition_after=2014-09-15T13%3A15%3A35%2B0000"
+                + "&fields=file%2Capplied_at";
 
         BoxAPIConnection api = new BoxAPIConnection("");
         api.setRequestInterceptor(new RequestInterceptor() {
@@ -157,7 +158,8 @@ public class BoxFileVersionRetentionTest {
                 .addDispositionBefore(BoxDateFormat.parse("2016-09-15T13:15:35+0000"))
                 .addDispositionAfter(BoxDateFormat.parse("2014-09-15T13:15:35+0000"));
 
-        Iterator<BoxFileVersionRetention.Info> iterator = BoxFileVersionRetention.getRetentions(api, filter).iterator();
+        Iterator<BoxFileVersionRetention.Info> iterator
+                = BoxFileVersionRetention.getRetentions(api, filter, "file", "applied_at").iterator();
         iterator.hasNext();
     }
 

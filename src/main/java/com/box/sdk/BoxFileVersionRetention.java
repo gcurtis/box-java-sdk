@@ -66,19 +66,23 @@ public class BoxFileVersionRetention extends BoxResource {
     /**
      * Retrieves all file version retentions.
      * @param api the API connection to be used by the resource.
+     * @param fields the fields to retrieve.
      * @return an iterable contains information about all file version retentions.
      */
-    public static Iterable<BoxFileVersionRetention.Info> getAll(BoxAPIConnection api) {
-        return getRetentions(api, new QueryFilter());
+    public static Iterable<BoxFileVersionRetention.Info> getAll(BoxAPIConnection api, String ... fields) {
+        return getRetentions(api, new QueryFilter(), fields);
     }
 
     /**
      * Retrieves all file version retentions matching given filters as an Iterable.
      * @param api the API connection to be used by the resource.
      * @param filter filters for the query stored in QueryFilter object.
+     * @param fields the fields to retrieve.
      * @return an iterable contains information about all file version retentions matching given filter.
      */
-    public static Iterable<BoxFileVersionRetention.Info> getRetentions(final BoxAPIConnection api, QueryFilter filter) {
+    public static Iterable<BoxFileVersionRetention.Info> getRetentions(
+            final BoxAPIConnection api, QueryFilter filter, String ... fields) {
+        filter.addFields(fields);
         return new BoxResourceIterable<BoxFileVersionRetention.Info>(api,
                 ALL_RETENTIONS_URL_TEMPLATE.buildWithQuery(api.getBaseURL(), filter.toString()),
                 DEFAULT_LIMIT) {
@@ -265,6 +269,11 @@ public class BoxFileVersionRetention extends BoxResource {
         private static final String PARAM_DISPOSITION_AFTER = "disposition_after";
 
         /**
+         * Param name for the the fields to retrieve.
+         */
+        private static final String PARAM_FIELDS = "fields";
+
+        /**
          * Constructs empty query filter.
          */
         public QueryFilter() {
@@ -323,6 +332,17 @@ public class BoxFileVersionRetention extends BoxResource {
          */
         public QueryFilter addDispositionAfter(Date date) {
             this.appendParam(PARAM_DISPOSITION_AFTER, BoxDateFormat.format(date));
+            return this;
+        }
+
+        /**
+         * @param fields the fields to retrieve.
+         * @return modified query filter.
+         */
+        public QueryFilter addFields(String ... fields) {
+            if (fields.length > 0) {
+                this.appendParam(PARAM_FIELDS, fields);
+            }
             return this;
         }
     }
