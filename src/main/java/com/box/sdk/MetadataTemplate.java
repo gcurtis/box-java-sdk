@@ -23,7 +23,7 @@ public class MetadataTemplate extends BoxJSONObject {
             = new URLTemplate("metadata_templates/%s/%s/schema");
 
     /**
-     * @see #getEnterpriseMetadataTemplates(BoxAPIConnection)
+     * @see #getEnterpriseMetadataTemplates(String, int, BoxAPIConnection, String...)
      */
     private static final URLTemplate ENTERPRISE_METADATA_URL_TEMPLATE = new URLTemplate("metadata_templates/%s");
 
@@ -202,33 +202,42 @@ public class MetadataTemplate extends BoxJSONObject {
     /**
      * Returns all metadata templates within a user's enterprise.
      * @param api the API connection to be used.
+     * @param fields the fields to retrieve.
      * @return the metadata template returned from the server.
      */
-    public static Iterable<MetadataTemplate> getEnterpriseMetadataTemplates(BoxAPIConnection api) {
-        return getEnterpriseMetadataTemplates(api, ENTERPRISE_METADATA_SCOPE);
+    public static Iterable<MetadataTemplate> getEnterpriseMetadataTemplates(BoxAPIConnection api, String ... fields) {
+        return getEnterpriseMetadataTemplates(ENTERPRISE_METADATA_SCOPE, api, fields);
     }
 
     /**
      * Returns all metadata templates within a user's scope. Currently only the enterprise scope is supported.
-     * @param api the API connection to be used.
      * @param scope the scope of the metadata templates.
+     * @param api the API connection to be used.
+     * @param fields the fields to retrieve.
      * @return the metadata template returned from the server.
      */
-    public static Iterable<MetadataTemplate> getEnterpriseMetadataTemplates(BoxAPIConnection api, String scope) {
-        return getEnterpriseMetadataTemplates(api, ENTERPRISE_METADATA_SCOPE, DEFAULT_ENTRIES_LIMIT);
+    public static Iterable<MetadataTemplate> getEnterpriseMetadataTemplates(
+            String scope, BoxAPIConnection api, String ... fields) {
+        return getEnterpriseMetadataTemplates(ENTERPRISE_METADATA_SCOPE, DEFAULT_ENTRIES_LIMIT, api, fields);
     }
 
     /**
      * Returns all metadata templates within a user's scope. Currently only the enterprise scope is supported.
-     * @param api the API connection to be used.
      * @param scope the scope of the metadata templates.
      * @param limit maximum number of entries per response.
+     * @param api the API connection to be used.
+     * @param fields the fields to retrieve.
      * @return the metadata template returned from the server.
      */
-    public static Iterable<MetadataTemplate> getEnterpriseMetadataTemplates(BoxAPIConnection api, String scope,
-                                                                            int limit) {
+    public static Iterable<MetadataTemplate> getEnterpriseMetadataTemplates(
+            String scope, int limit, BoxAPIConnection api, String ... fields) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
         return new BoxResourceIterable<MetadataTemplate>(
-                api, ENTERPRISE_METADATA_URL_TEMPLATE.build(api.getBaseURL(), scope), limit) {
+                api, ENTERPRISE_METADATA_URL_TEMPLATE.buildWithQuery(
+                        api.getBaseURL(), builder.toString(), scope), limit) {
 
             @Override
             protected MetadataTemplate factory(JsonObject jsonObject) {

@@ -126,7 +126,7 @@ public class MetadataTemplateTest {
     }
 
     /**
-     * Unit test for {@link MetadataTemplate#getEnterpriseMetadataTemplates(BoxAPIConnection)}.
+     * Unit test for {@link MetadataTemplate#getEnterpriseMetadataTemplates(BoxAPIConnection, String...)}.
      */
     @Test(expected = NoSuchElementException.class)
     @Category(UnitTest.class)
@@ -136,7 +136,8 @@ public class MetadataTemplateTest {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
                 Assert.assertEquals(
-                        "https://api.box.com/2.0/metadata_templates/enterprise?limit=100", request.getUrl().toString());
+                        "https://api.box.com/2.0/metadata_templates/enterprise?fields=displayName%2Chidden&limit=100",
+                        request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {
@@ -146,12 +147,12 @@ public class MetadataTemplateTest {
             }
         });
 
-        Iterator iterator = MetadataTemplate.getEnterpriseMetadataTemplates(api).iterator();
+        Iterator iterator = MetadataTemplate.getEnterpriseMetadataTemplates(api, "displayName", "hidden").iterator();
         iterator.next();
     }
 
     /**
-     * Unit test for {@link MetadataTemplate#getEnterpriseMetadataTemplates(BoxAPIConnection)}.
+     * Unit test for {@link MetadataTemplate#getEnterpriseMetadataTemplates(BoxAPIConnection, String...)}.
      */
     @Test
     @Category(UnitTest.class)
