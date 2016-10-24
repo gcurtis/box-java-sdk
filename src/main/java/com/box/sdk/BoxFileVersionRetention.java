@@ -9,6 +9,11 @@ import com.eclipsesource.json.JsonValue;
 
 /**
  * Represents a file version retention.
+ * A retention policy blocks permanent deletion of content for a specified amount of time.
+ * Admins can apply policies to specified folders, or an entire enterprise.
+ * A file version retention is a record for a retained file version.
+ *
+ * @see <a href="https://docs.box.com/reference#file-version-retention-object">Box file version retention</a>
  *
  * <p>Unless otherwise noted, the methods in this class can throw an unchecked {@link BoxAPIException} (unchecked
  * meaning that the compiler won't force you to handle it) if an error occurs. If you wish to implement custom error
@@ -18,7 +23,7 @@ import com.eclipsesource.json.JsonValue;
 public class BoxFileVersionRetention extends BoxResource {
 
     /**
-     * The URL template used for operation with given file version retention.
+     * @see #getInfo(String...)
      */
     private static final URLTemplate RETENTION_URL_TEMPLATE = new URLTemplate("file_version_retentions/%s");
 
@@ -33,10 +38,15 @@ public class BoxFileVersionRetention extends BoxResource {
     }
 
     /**
+     * @param fields the fields to retrieve.
      * @return information about this retention policy.
      */
-    public BoxFileVersionRetention.Info getInfo() {
-        URL url = RETENTION_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+    public BoxFileVersionRetention.Info getInfo(String ... fields) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
+        URL url = RETENTION_URL_TEMPLATE.buildWithQuery(this.getAPI().getBaseURL(), builder.toString(), this.getID());
         BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
