@@ -139,7 +139,7 @@ public class BoxLegalHoldTest {
     }
 
     /**
-     * Unit test for {@link BoxLegalHold#getAll(BoxAPIConnection, String, String...)}
+     * Unit test for {@link BoxLegalHold#getAll(BoxAPIConnection, String, int, String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -160,7 +160,7 @@ public class BoxLegalHoldTest {
             }
         });
 
-        Iterator<BoxLegalHold.Info> iterator = BoxLegalHold.getAll(api, "pol", "description", "status").iterator();
+        Iterator<BoxLegalHold.Info> iterator = BoxLegalHold.getAll(api, "pol", 100, "description", "status").iterator();
         iterator.hasNext();
     }
 

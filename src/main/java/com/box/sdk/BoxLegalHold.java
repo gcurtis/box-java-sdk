@@ -23,11 +23,13 @@ public class BoxLegalHold extends BoxResource {
 
     /**
      * The URL template used for operation with legal hold policy with given ID.
+     * @see #getInfo(String...)
      */
     private static final URLTemplate LEGAL_HOLD_URL_TEMPLATE = new URLTemplate("legal_hold_policies/%s");
 
     /**
      * The URL template used for operation with legal hold policies.
+     * @see #getAll(BoxAPIConnection, String, int, String...)
      */
     private static final URLTemplate ALL_LEGAL_HOLD_URL_TEMPLATE = new URLTemplate("legal_hold_policies");
 
@@ -68,17 +70,19 @@ public class BoxLegalHold extends BoxResource {
      * @return the Iterable of Legal Hold Policies in your Enterprise.
      */
     public static Iterable<BoxLegalHold.Info> getAll(final BoxAPIConnection api) {
-        return getAll(api, null);
+        return getAll(api, null, DEFAULT_LIMIT);
     }
 
     /**
      * Retrieves a list of Legal Hold Policies that belong to your Enterprise as an Iterable.
      * @param api api the API connection to be used by the resource.
      * @param policyName case insensitive prefix-match filter on Policy name.
+     * @param limit the limit of retrieved entries per page.
      * @param fields the optional fields to retrieve.
      * @return the Iterable of Legal Hold Policies in your Enterprise that match the filter parameters.
      */
-    public static Iterable<BoxLegalHold.Info> getAll(final BoxAPIConnection api, String policyName, String ... fields) {
+    public static Iterable<BoxLegalHold.Info> getAll(
+            final BoxAPIConnection api, String policyName, int limit, String ... fields) {
         QueryStringBuilder builder = new QueryStringBuilder();
         if (policyName != null) {
             builder.appendParam("policy_name", policyName);
@@ -88,7 +92,7 @@ public class BoxLegalHold extends BoxResource {
         }
         return new BoxResourceIterable<BoxLegalHold.Info>(api,
                 ALL_LEGAL_HOLD_URL_TEMPLATE.buildWithQuery(api.getBaseURL(), builder.toString()),
-                DEFAULT_LIMIT) {
+                limit) {
 
             @Override
             protected BoxLegalHold.Info factory(JsonObject jsonObject) {
