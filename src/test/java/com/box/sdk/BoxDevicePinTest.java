@@ -15,7 +15,7 @@ import com.eclipsesource.json.JsonObject;
 public class BoxDevicePinTest {
 
     /**
-     * Unit test for {@link BoxDevicePin#getInfo()}.
+     * Unit test for {@link BoxDevicePin#getInfo(String...)}.
      */
     @Test
     @Category(UnitTest.class)
@@ -24,7 +24,8 @@ public class BoxDevicePinTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/device_pinners/0", request.getUrl().toString());
+                Assert.assertEquals("https://api.box.com/2.0/device_pinners/0?fields=owned_by%2Cproduct_name",
+                        request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {
@@ -35,11 +36,11 @@ public class BoxDevicePinTest {
         });
 
         BoxDevicePin pin = new BoxDevicePin(api, "0");
-        pin.getInfo();
+        pin.getInfo("owned_by", "product_name");
     }
 
     /**
-     * Unit test for {@link BoxDevicePin#getInfo()}.
+     * Unit test for {@link BoxDevicePin#getInfo(String...)}.
      */
     @Test
     @Category(UnitTest.class)
