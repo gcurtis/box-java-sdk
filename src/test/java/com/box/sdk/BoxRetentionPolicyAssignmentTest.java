@@ -129,7 +129,7 @@ public class BoxRetentionPolicyAssignmentTest {
 
 
     /**
-     * Unit test for {@link BoxRetentionPolicyAssignment#getInfo()}
+     * Unit test for {@link BoxRetentionPolicyAssignment#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -138,7 +138,7 @@ public class BoxRetentionPolicyAssignmentTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/retention_policy_assignments/0",
+                Assert.assertEquals("https://api.box.com/2.0/retention_policy_assignments/0?fields=assigned_to",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -150,11 +150,11 @@ public class BoxRetentionPolicyAssignmentTest {
         });
 
         BoxRetentionPolicyAssignment assignment = new BoxRetentionPolicyAssignment(api, "0");
-        assignment.getInfo();
+        assignment.getInfo("assigned_to");
     }
 
     /**
-     * Unit test for {@link BoxRetentionPolicyAssignment#createAssignmentToFolder(BoxAPIConnection, String, String)}
+     * Unit test for {@link BoxRetentionPolicyAssignment#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
