@@ -15,7 +15,7 @@ import com.eclipsesource.json.JsonObject;
 public class BoxLegalHoldAssignmentTest {
 
     /**
-     * Unit test for {@link BoxLegalHoldAssignment#getInfo()}
+     * Unit test for {@link BoxLegalHoldAssignment#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -24,7 +24,7 @@ public class BoxLegalHoldAssignmentTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policy_assignments/0",
+                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policy_assignments/0?fields=assigned_by",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -36,11 +36,11 @@ public class BoxLegalHoldAssignmentTest {
         });
 
         BoxLegalHoldAssignment assignment = new BoxLegalHoldAssignment(api, "0");
-        assignment.getInfo();
+        assignment.getInfo("assigned_by");
     }
 
     /**
-     * Unit test for {@link BoxLegalHoldAssignment#getInfo()}
+     * Unit test for {@link BoxLegalHoldAssignment#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
