@@ -219,5 +219,4 @@ public class BoxRetentionPolicyTest {
         Assert.assertEquals(createdAt, info.getCreatedAt());
         Assert.assertEquals(modifiedAt, info.getModifiedAt());
     }
-
 }
