@@ -38,7 +38,7 @@ public class BoxResourceIterableTest {
             }
         });
 
-        Iterator iterator = new BoxResourceIterable<Void>(api, urlTemplate.build(api.getBaseURL(), "0"), limit) {
+        Iterator<Void> iterator = new BoxResourceIterable<Void>(api, urlTemplate.build(api.getBaseURL(), "0"), limit) {
                 @Override
                 protected Void factory(JsonObject jsonObject) {
                     return null;
@@ -70,7 +70,7 @@ public class BoxResourceIterableTest {
             }
         });
 
-        Iterator iterator = new BoxResourceIterable<Void>(api, urlTemplate.build(api.getBaseURL(), "0"), limit) {
+        Iterator<Void> iterator = new BoxResourceIterable<Void>(api, urlTemplate.build(api.getBaseURL(), "0"), limit) {
                 @Override
                 protected Void factory(JsonObject jsonObject) {
                     return null;

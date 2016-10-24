@@ -43,11 +43,16 @@ public class BoxDevicePin extends BoxResource {
     }
 
     /**
-     * Returns information about the device pin.
+     * Gets information about the device pin.
+     * @param fields the fields to retrieve.
      * @return info about the device pin.
      */
-    public Info getInfo() {
-        URL url = DEVICE_PIN_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+    public Info getInfo(String ... fields) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
+        URL url = DEVICE_PIN_URL_TEMPLATE.buildWithQuery(this.getAPI().getBaseURL(), builder.toString(), this.getID());
         BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
@@ -109,6 +114,7 @@ public class BoxDevicePin extends BoxResource {
          * Constructs an empty Info object.
          */
         public Info() {
+            super();
         }
 
         /**
