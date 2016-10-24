@@ -12,6 +12,8 @@ import com.eclipsesource.json.JsonValue;
  * Legal Hold Policy information describes the basic characteristics of the Policy,
  * such as name, description, and filter dates.
  *
+ * @see <a href="https://docs.box.com/reference#legal-holds-object">Box legal holds</a>
+ *
  * <p>Unless otherwise noted, the methods in this class can throw an unchecked {@link BoxAPIException} (unchecked
  * meaning that the compiler won't force you to handle it) if an error occurs. If you wish to implement custom error
  * handling for errors related to the Box REST API, you should capture this exception explicitly.</p>
@@ -40,10 +42,15 @@ public class BoxLegalHold extends BoxResource {
     }
 
     /**
+     * @param fields the fields to retrieve.
      * @return information about this legal hold policy.
      */
-    public Info getInfo() {
-        URL url = LEGAL_HOLD_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+    public Info getInfo(String ... fields) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
+        URL url = LEGAL_HOLD_URL_TEMPLATE.buildWithQuery(this.getAPI().getBaseURL(), builder.toString(), this.getID());
         BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
