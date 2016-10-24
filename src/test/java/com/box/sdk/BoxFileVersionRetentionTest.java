@@ -18,7 +18,7 @@ import com.eclipsesource.json.JsonObject;
 public class BoxFileVersionRetentionTest {
 
     /**
-     * Unit test for {@link BoxFileVersionRetention#getInfo()}
+     * Unit test for {@link BoxFileVersionRetention#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -27,7 +27,8 @@ public class BoxFileVersionRetentionTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/file_version_retentions/0", request.getUrl().toString());
+                Assert.assertEquals("https://api.box.com/2.0/file_version_retentions/0?fields=file%2Capplied_at",
+                        request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {
@@ -38,11 +39,11 @@ public class BoxFileVersionRetentionTest {
         });
 
         BoxFileVersionRetention retention = new BoxFileVersionRetention(api, "0");
-        retention.getInfo();
+        retention.getInfo("file", "applied_at");
     }
 
     /**
-     * Unit test for {@link BoxFileVersionRetention#getInfo()}
+     * Unit test for {@link BoxFileVersionRetention#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
