@@ -53,6 +53,17 @@ public class BoxLegalHold extends BoxResource {
     }
 
     /**
+     * Assigns this legal holds policy to the given box resource.
+     * Currently only {@link BoxFile}, {@link BoxFileVersion}, {@link BoxFolder} and {@link BoxUser} are supported.
+     * @param resource the box resource to assign legal hold policy to.
+     * @return info about created legal hold policy assignment.
+     */
+    public BoxLegalHoldAssignment.Info assignTo(BoxResource resource) {
+        return BoxLegalHoldAssignment.create(
+                this.getAPI(), this.getID(), resource.getResourceType(resource.getClass()), resource.getID());
+    }
+
+    /**
      * Contains information about the legal hold policy.
      */
     public class Info extends BoxResource.Info {

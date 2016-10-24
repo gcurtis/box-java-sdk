@@ -112,4 +112,37 @@ public class BoxLegalHoldTest {
         Assert.assertEquals(filterEndedAt, info.getFilterEndedAt());
         Assert.assertEquals(releaseNote, info.getReleaseNotes());
     }
+
+    /**
+     * Unit test for {@link BoxLegalHold#assignTo(BoxResource)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testAssignToSendsCorrectJSON() {
+        final String policyID = "0";
+        final String resourceType = BoxLegalHoldAssignment.TYPE_FILE_VERSION;
+        final String resourceID = "1";
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new JSONRequestInterceptor() {
+            @Override
+            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policy_assignments",
+                        request.getUrl().toString());
+                Assert.assertEquals(policyID, json.get("policy_id").asString());
+                Assert.assertEquals(resourceType, json.get("assign_to").asObject().get("type").asString());
+                Assert.assertEquals(resourceID, json.get("assign_to").asObject().get("id").asString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
+
+        BoxLegalHold policy = new BoxLegalHold(api, "0");
+        BoxFileVersion version = new BoxFileVersion(api, "{\"id\": \"1\"}", "2");
+        policy.assignTo(version);
+    }
 }

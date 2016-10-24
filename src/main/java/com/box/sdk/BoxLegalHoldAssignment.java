@@ -21,22 +21,22 @@ public class BoxLegalHoldAssignment extends BoxResource {
     /**
      * Used to assign legal hold policy to file version.
      */
-    public static final String TYPE_FILE_VERSION = "file_version";
+    public static final String TYPE_FILE_VERSION = BoxFileVersion.getResourceType(BoxFileVersion.class);
 
     /**
      * Used to assign legal hold policy to file.
      */
-    public static final String TYPE_FILE = "file";
+    public static final String TYPE_FILE = BoxFile.getResourceType(BoxFile.class);
 
     /**
      * Used to assign legal hold policy to folder.
      */
-    public static final String TYPE_FOLDER = "folder";
+    public static final String TYPE_FOLDER = BoxFolder.getResourceType(BoxFolder.class);
 
     /**
      * Used to assign legal hold policy to user.
      */
-    public static final String TYPE_USER = "user";
+    public static final String TYPE_USER = BoxUser.getResourceType(BoxUser.class);
 
     /**
      * The URL template used for operation with legal hold policy assignments.
