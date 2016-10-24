@@ -12,6 +12,8 @@ import com.eclipsesource.json.JsonValue;
  * A retention policy blocks permanent deletion of content for a specified amount of time.
  * Admins can create retention policies and then later assign them to specific folders or their entire enterprise.
  *
+ * @see <a href="https://docs.box.com/reference#retention-policy-object">Box retention policy</a>
+ *
  * <p>Unless otherwise noted, the methods in this class can throw an unchecked {@link BoxAPIException} (unchecked
  * meaning that the compiler won't force you to handle it) if an error occurs. If you wish to implement custom error
  * handling for errors related to the Box REST API, you should capture this exception explicitly.</p>
@@ -113,10 +115,15 @@ public class BoxRetentionPolicy extends BoxResource {
 
     /**
      * Returns information about this retention policy.
+     * @param fields the fields to retrieve.
      * @return information about this retention policy.
      */
-    public BoxRetentionPolicy.Info getInfo() {
-        URL url = POLICY_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+    public BoxRetentionPolicy.Info getInfo(String ... fields) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
+        URL url = POLICY_URL_TEMPLATE.buildWithQuery(this.getAPI().getBaseURL(), builder.toString(), this.getID());
         BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
@@ -200,7 +207,6 @@ public class BoxRetentionPolicy extends BoxResource {
         }
 
         /**
-         * Gets the name given to the retention policy.
          * @return name given to the retention policy.
          */
         public String getPolicyName() {
@@ -246,7 +252,6 @@ public class BoxRetentionPolicy extends BoxResource {
         }
 
         /**
-         * Gets info about the user created the retention policy.
          * @return info about the user created the retention policy.
          */
         public BoxUser.Info getCreatedBy() {
@@ -254,7 +259,6 @@ public class BoxRetentionPolicy extends BoxResource {
         }
 
         /**
-         * Gets the time that the retention policy was created.
          * @return the time that the retention policy was created.
          */
         public Date getCreatedAt() {
@@ -262,7 +266,6 @@ public class BoxRetentionPolicy extends BoxResource {
         }
 
         /**
-         * Gets the time that the retention policy was last modified.
          * @return the time that the retention policy was last modified.
          */
         public Date getModifiedAt() {

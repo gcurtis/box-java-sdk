@@ -130,7 +130,7 @@ public class BoxRetentionPolicyTest {
     }
 
     /**
-     * Unit test for {@link BoxRetentionPolicy#getInfo()}
+     * Unit test for {@link BoxRetentionPolicy#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -139,7 +139,8 @@ public class BoxRetentionPolicyTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/retention_policies/0", request.getUrl().toString());
+                Assert.assertEquals("https://api.box.com/2.0/retention_policies/0?fields=policy_name%2Cstatus",
+                        request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {
@@ -150,11 +151,11 @@ public class BoxRetentionPolicyTest {
         });
 
         BoxRetentionPolicy policy = new BoxRetentionPolicy(api, "0");
-        policy.getInfo();
+        policy.getInfo("policy_name", "status");
     }
 
     /**
-     * Unit test for {@link BoxRetentionPolicy#getInfo()}
+     * Unit test for {@link BoxRetentionPolicy#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
