@@ -183,10 +183,17 @@ public class MetadataTemplate extends BoxJSONObject {
      * @param api the API connection to be used.
      * @param templateName the metadata template type name.
      * @param scope the metadata template scope (global or enterprise).
+     * @param fields the fields to retrieve.
      * @return the metadata template returned from the server.
      */
-    public static MetadataTemplate getMetadataTemplate(BoxAPIConnection api, String templateName, String scope) {
-        URL url = METADATA_TEMPLATE_URL_TEMPLATE.build(api.getBaseURL(), scope, templateName);
+    public static MetadataTemplate getMetadataTemplate(
+            BoxAPIConnection api, String templateName, String scope, String ... fields) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
+        URL url = METADATA_TEMPLATE_URL_TEMPLATE.buildWithQuery(
+                api.getBaseURL(), builder.toString(), scope, templateName);
         BoxAPIRequest request = new BoxAPIRequest(api, url, "GET");
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         return new MetadataTemplate(response.getJSON());

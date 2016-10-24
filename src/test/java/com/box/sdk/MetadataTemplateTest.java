@@ -25,19 +25,30 @@ public class MetadataTemplateTest {
     public final WireMockRule wireMockRule = new WireMockRule(8080);
 
     /**
-     * Unit test for {@link MetadataTemplate#getMetadataTemplate(BoxAPIConnection)}.
+     * Unit test for {@link MetadataTemplate#getMetadataTemplate(BoxAPIConnection, String, String, String...)}.
      */
     @Test
     @Category(UnitTest.class)
     public void testGetMetadataTemplateSendsCorrectRequest() {
+       // WireMock.stubFor(WireMock.get(WireMock.urlMatching("/metadata_templates/global/properties/schema"))
         BoxAPIConnection api = new BoxAPIConnection("");
-        api.setBaseURL("http://localhost:8080/");
-        WireMock.stubFor(WireMock.get(WireMock.urlMatching("/metadata_templates/global/properties/schema"))
-                .willReturn(WireMock.aResponse()
-                        .withHeader("Content-Type", "application/json")
-                        .withBody("{\"id\": \"0\"}")));
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals(
+                        "https://api.box.com/2.0/metadata_templates/global/properties/schema"
+                                + "?fields=displayName%2Chidden",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
 
-        MetadataTemplate.getMetadataTemplate(api);
+        MetadataTemplate.getMetadataTemplate(api, "properties", "global", "displayName", "hidden");
     }
 
     /**
