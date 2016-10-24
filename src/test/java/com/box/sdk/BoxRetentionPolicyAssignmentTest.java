@@ -15,11 +15,11 @@ import com.eclipsesource.json.JsonObject;
 public class BoxRetentionPolicyAssignmentTest {
 
     /**
-     * Unit test for {@link BoxRetentionPolicyAssignment#createAssignmentToEnterprice(BoxAPIConnection, String)}
+     * Unit test for {@link BoxRetentionPolicyAssignment#createAssignmentToEnterprise(BoxAPIConnection, String)}
      */
     @Test
     @Category(UnitTest.class)
-    public void testCreateAssignmentToEnterpriceSendsCorrectJson() {
+    public void testCreateAssignmentToEnterpriseSendsCorrectJson() {
         final String id = "0";
         final String type = "enterprise";
 
@@ -40,7 +40,7 @@ public class BoxRetentionPolicyAssignmentTest {
             }
         });
 
-        BoxRetentionPolicyAssignment.createAssignmentToEnterprice(api, id);
+        BoxRetentionPolicyAssignment.createAssignmentToEnterprise(api, id);
     }
 
     /**
