@@ -12,6 +12,8 @@ import com.eclipsesource.json.JsonValue;
  * A retention policy blocks permanent deletion of content for a specified amount of time.
  * Admins can create retention policies and then later assign them to specific folders or their entire enterprise.
  *
+ * @see <a href="https://docs.box.com/reference#retention-policy-object">Box retention policy</a>
+ *
  * <p>Unless otherwise noted, the methods in this class can throw an unchecked {@link BoxAPIException} (unchecked
  * meaning that the compiler won't force you to handle it) if an error occurs. If you wish to implement custom error
  * handling for errors related to the Box REST API, you should capture this exception explicitly.</p>
@@ -113,23 +115,25 @@ public class BoxRetentionPolicy extends BoxResource {
     /**
      * Returns all the retention policies.
      * @param api the API connection to be used by the resource.
+     * @param fields the fields to retrieve.
      * @return an iterable with all the retention policies.
      */
-    public static Iterable<BoxRetentionPolicy.Info> getAll(final BoxAPIConnection api) {
-        return getAll(api, null, null, null);
+    public static Iterable<BoxRetentionPolicy.Info> getAll(final BoxAPIConnection api, String ... fields) {
+        return getAll(null, null, null, api, fields);
     }
 
     /**
      * Returns all the retention policies with specified filters.
-     * @param api the API connection to be used by the resource.
      * @param name a name to filter the retention policies by. A trailing partial match search is performed.
      *             Set to null if no name filtering is required.
      * @param type a policy type to filter the retention policies by. Set to null if no type filtering is required.
      * @param userID a user id to filter the retention policies by. Set to null if no type filtering is required.
+     * @param api the API connection to be used by the resource.
+     * @param fields the fields to retrieve.
      * @return an iterable with all the retention policies met search conditions.
      */
-    public static Iterable<BoxRetentionPolicy.Info> getAll(final BoxAPIConnection api,
-                                                           String name, String type, String userID) {
+    public static Iterable<BoxRetentionPolicy.Info> getAll(
+            String name, String type, String userID, final BoxAPIConnection api, String ... fields) {
         QueryStringBuilder queryString = new QueryStringBuilder();
         if (name != null) {
             queryString.appendParam("policy_name", name);
@@ -139,6 +143,9 @@ public class BoxRetentionPolicy extends BoxResource {
         }
         if (userID != null) {
             queryString.appendParam("created_by_user_id", userID);
+        }
+        if (fields.length > 0) {
+            queryString.appendParam("fields", fields);
         }
         URL url = RETENTION_POLICIES_URL_TEMPLATE.buildWithQuery(api.getBaseURL(), queryString.toString());
         return new BoxResourceIterable<BoxRetentionPolicy.Info>(api, url, DEFAULT_LIMIT) {

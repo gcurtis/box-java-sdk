@@ -131,7 +131,7 @@ public class BoxRetentionPolicyTest {
     }
 
     /**
-     * Unit test for {@link BoxRetentionPolicy#getAll(BoxAPIConnection, String, String, String)}
+     * Unit test for {@link BoxRetentionPolicy#getAll(String, String, String, BoxAPIConnection, String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -141,7 +141,7 @@ public class BoxRetentionPolicyTest {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
                 Assert.assertEquals("https://api.box.com/2.0/retention_policies?"
-                        + "policy_name=any_name&policy_type=any_type&created_by_user_id=any_user",
+                        + "policy_name=any_name&policy_type=any_type&created_by_user_id=any_user&fields=status",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -152,12 +152,12 @@ public class BoxRetentionPolicyTest {
             }
         });
 
-        Iterator iterator = BoxRetentionPolicy.getAll(api, "any_name", "any_type", "any_user").iterator();
+        Iterator iterator = BoxRetentionPolicy.getAll("any_name", "any_type", "any_user", api, "status").iterator();
         iterator.hasNext();
     }
 
     /**
-     * Unit test for {@link BoxRetentionPolicy#getAll(BoxAPIConnection)}
+     * Unit test for {@link BoxRetentionPolicy#getAll(BoxAPIConnection, String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -181,7 +181,7 @@ public class BoxRetentionPolicyTest {
     }
 
     /**
-     * Unit test for {@link BoxRetentionPolicy#getAll(BoxAPIConnection)}
+     * Unit test for {@link BoxRetentionPolicy#getAll(BoxAPIConnection, String...)}
      */
     @Test
     @Category(UnitTest.class)
