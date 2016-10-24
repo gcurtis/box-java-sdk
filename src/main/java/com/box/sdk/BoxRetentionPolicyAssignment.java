@@ -48,7 +48,7 @@ public class BoxRetentionPolicyAssignment extends BoxResource {
      * @param policyID id of the assigned retention policy.
      * @return info about created assignment.
      */
-    public static BoxRetentionPolicyAssignment.Info createAssignmentToEnterprice(BoxAPIConnection api,
+    public static BoxRetentionPolicyAssignment.Info createAssignmentToEnterprise(BoxAPIConnection api,
                                                                                  String policyID) {
         return createAssignment(api, policyID, new JsonObject().add("type", TYPE_ENTERPRISE));
     }

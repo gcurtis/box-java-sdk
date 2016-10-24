@@ -136,6 +136,23 @@ public class BoxRetentionPolicy extends BoxResource {
     }
 
     /**
+     * Assigns this retention policy to folder.
+     * @param folder the folder to assign policy to.
+     * @return info about created assignment.
+     */
+    public BoxRetentionPolicyAssignment.Info assignTo(BoxFolder folder) {
+        return BoxRetentionPolicyAssignment.createAssignmentToFolder(this.getAPI(), this.getID(), folder.getID());
+    }
+
+    /**
+     * Assigns this retention policy to the current enterprise.
+     * @return info about created assignment.
+     */
+    public BoxRetentionPolicyAssignment.Info assignToEnterprise() {
+        return BoxRetentionPolicyAssignment.createAssignmentToEnterprise(this.getAPI(), this.getID());
+    }
+
+    /**
      * Contains information about the retention policy.
      */
     public class Info extends BoxResource.Info {
