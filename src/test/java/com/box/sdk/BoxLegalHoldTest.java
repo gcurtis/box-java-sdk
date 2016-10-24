@@ -15,7 +15,7 @@ import com.eclipsesource.json.JsonObject;
 public class BoxLegalHoldTest {
 
     /**
-     * Unit test for {@link BoxLegalHold#getInfo()}
+     * Unit test for {@link BoxLegalHold#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -24,7 +24,8 @@ public class BoxLegalHoldTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policies/0", request.getUrl().toString());
+                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policies/0?fields=description%2Cstatus",
+                        request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {
@@ -35,11 +36,11 @@ public class BoxLegalHoldTest {
         });
 
         BoxLegalHold policy = new BoxLegalHold(api, "0");
-        policy.getInfo();
+        policy.getInfo("description", "status");
     }
 
     /**
-     * Unit test for {@link BoxLegalHold#getInfo()}
+     * Unit test for {@link BoxLegalHold#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
