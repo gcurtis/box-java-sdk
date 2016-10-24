@@ -95,10 +95,16 @@ public class BoxLegalHoldAssignment extends BoxResource {
     }
 
     /**
+     * @param fields the fields to retrieve.
      * @return information about this retention policy.
      */
-    public BoxLegalHoldAssignment.Info getInfo() {
-        URL url = LEGAL_HOLD_ASSIGNMENT_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+    public BoxLegalHoldAssignment.Info getInfo(String ... fields) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
+        URL url = LEGAL_HOLD_ASSIGNMENT_URL_TEMPLATE.buildWithQuery(
+                this.getAPI().getBaseURL(), builder.toString(), this.getID());
         BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
