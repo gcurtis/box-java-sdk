@@ -141,7 +141,8 @@ public class BoxRetentionPolicyTest {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
                 Assert.assertEquals("https://api.box.com/2.0/retention_policies?"
-                        + "policy_name=any_name&policy_type=any_type&created_by_user_id=any_user&fields=status",
+                        + "policy_name=any_name&policy_type=any_type&created_by_user_id=any_user&"
+                        + "fields=status&limit=100",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -166,7 +167,8 @@ public class BoxRetentionPolicyTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/retention_policies", request.getUrl().toString());
+                Assert.assertEquals("https://api.box.com/2.0/retention_policies?limit=100",
+                        request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {
