@@ -130,7 +130,8 @@ public class BoxFileVersionRetentionTest {
                 + "&disposition_action=permanently_delete"
                 + "&disposition_before=2016-09-15T13%3A15%3A35%2B0000"
                 + "&disposition_after=2014-09-15T13%3A15%3A35%2B0000"
-                + "&fields=file%2Capplied_at";
+                + "&fields=file%2Capplied_at"
+                + "&limit=100";
 
         BoxAPIConnection api = new BoxAPIConnection("");
         api.setRequestInterceptor(new RequestInterceptor() {
