@@ -157,7 +157,8 @@ public class BoxLegalHoldTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policies/0/assignments?fields=assigned_at",
+                Assert.assertEquals(
+                        "https://api.box.com/2.0/legal_hold_policies/0/assignments?fields=assigned_at&limit=100",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -174,7 +175,7 @@ public class BoxLegalHoldTest {
     }
 
     /**
-     * Unit test for {@link BoxLegalHold#getAssignments(String...)}
+     * Unit test for {@link BoxLegalHold#getAssignments(String, String, int, String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -183,7 +184,9 @@ public class BoxLegalHoldTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policies/0/assignments?assign_to_type=folder&assign_to_id=1&limit=99",
+                Assert.assertEquals(
+                        "https://api.box.com/2.0/legal_hold_policies/0/assignments"
+                        + "?assign_to_type=folder&assign_to_id=1&limit=99",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -199,4 +202,47 @@ public class BoxLegalHoldTest {
                 = policy.getAssignments(BoxResource.getResourceType(BoxFolder.class), "1", 99).iterator();
         iterator.hasNext();
     }
+
+    /**
+     * Unit test for {@link BoxLegalHold#getAssignments(String...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetAssignmentsParseAllFieldsCorrectly() {
+        final String firstEntryID = "255473";
+        final String secondEntryID = "123432";
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"entries\": [\n"
+                + "    {\n"
+                + "      \"type\": \"legal_hold_policy_assignment\",\n"
+                + "      \"id\": \"255473\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"type\": \"legal_hold_policy_assignment\",\n"
+                + "      \"id\": \"123432\"\n"
+                + "    }\n"
+                + "  ],\n"
+                + "  \"limit\": 100,\n"
+                + "  \"order\": [\n"
+                + "    {\n"
+                + "      \"by\": \"retention_policy_id, retention_policy_object_id\",\n"
+                + "      \"direction\": \"ASC\"\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxLegalHold policy = new BoxLegalHold(api, "0");
+        Iterator<BoxLegalHoldAssignment.Info> iterator = policy.getAssignments().iterator();
+        BoxLegalHoldAssignment.Info info = iterator.next();
+        Assert.assertEquals(firstEntryID, info.getID());
+        info = iterator.next();
+        Assert.assertEquals(secondEntryID, info.getID());
+        Assert.assertEquals(false, iterator.hasNext());
+
+    }
+
 }

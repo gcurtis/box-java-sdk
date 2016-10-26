@@ -94,7 +94,7 @@ public class BoxLegalHold extends BoxResource {
      * @param fields the fields to retrieve.
      * @return an iterable containing assignments for this single legal hold policy.
      */
-    public Iterable<BoxLegalHoldAssignment.Info> getAssignments(String type, String id, int limit, String ... fields){
+    public Iterable<BoxLegalHoldAssignment.Info> getAssignments(String type, String id, int limit, String ... fields) {
         QueryStringBuilder builder = new QueryStringBuilder();
         if (type != null) {
             builder.appendParam("assign_to_type", type);
