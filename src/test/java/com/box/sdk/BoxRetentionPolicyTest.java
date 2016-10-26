@@ -141,7 +141,8 @@ public class BoxRetentionPolicyTest {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
                 Assert.assertEquals(
-                        "https://api.box.com/2.0/retention_policies/0/assignments?type=folder&fields=assigned_by",
+                        "https://api.box.com/2.0/retention_policies/0/assignments"
+                        + "?type=folder&fields=assigned_by&limit=100",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
@@ -168,7 +169,8 @@ public class BoxRetentionPolicyTest {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
                 Assert.assertEquals(
-                        "https://api.box.com/2.0/retention_policies/0/assignments?type=enterprise&fields=assigned_by",
+                        "https://api.box.com/2.0/retention_policies/0/assignments"
+                        + "?type=enterprise&fields=assigned_by&limit=100",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override
