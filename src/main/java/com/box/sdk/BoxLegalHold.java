@@ -23,8 +23,21 @@ public class BoxLegalHold extends BoxResource {
 
     /**
      * The URL template used for operation with legal hold policy with given ID.
+     * @see #getInfo(String...)
      */
     private static final URLTemplate LEGAL_HOLD_URL_TEMPLATE = new URLTemplate("legal_hold_policies/%s");
+
+    /**
+     * The URL used for operation with legal hold policy assignments of the policy with given ID.
+     * @see #getAssignments(String, String, int, String...)
+     */
+    private static final URLTemplate LEGAL_HOLD_ASSIGNMENTS_URL_TEMPLATE
+            = new URLTemplate("legal_hold_policies/%s/assignments");
+
+    /**
+     * Default limit of the legal hold assignment info entries per one response page.
+     */
+    private static final int DEFAULT_LIMIT = 100;
 
     /**
      * Constructs a BoxLegalHold for a resource with a given ID.
@@ -61,6 +74,48 @@ public class BoxLegalHold extends BoxResource {
     public BoxLegalHoldAssignment.Info assignTo(BoxResource resource) {
         return BoxLegalHoldAssignment.create(
                 this.getAPI(), this.getID(), resource.getResourceType(resource.getClass()), resource.getID());
+    }
+
+    /**
+     * Returns iterable containing assignments for this single legal hold policy.
+     * @param fields the fields to retrieve.
+     * @return an iterable containing assignments for this single legal hold policy.
+     */
+    public Iterable<BoxLegalHoldAssignment.Info> getAssignments(String ... fields) {
+        return this.getAssignments(null, null, DEFAULT_LIMIT, fields);
+    }
+
+    /**
+     * Returns iterable containing assignments for this single legal hold policy.
+     * Parameters can be used to filter retrieved assignments.
+     * @param type filter assignments of this type only. Can be "file_version", "file", "folder", or "user".
+     * @param id filter assignments to this ID only.
+     * @param limit the limit of entries per page. Default limit is 100.
+     * @param fields the fields to retrieve.
+     * @return an iterable containing assignments for this single legal hold policy.
+     */
+    public Iterable<BoxLegalHoldAssignment.Info> getAssignments(String type, String id, int limit, String ... fields){
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (type != null) {
+            builder.appendParam("assign_to_type", type);
+        }
+        if (id != null) {
+            builder.appendParam("assign_to_id", id);
+        }
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
+        return new BoxResourceIterable<BoxLegalHoldAssignment.Info>(
+                this.getAPI(), LEGAL_HOLD_ASSIGNMENTS_URL_TEMPLATE.buildWithQuery(
+                        this.getAPI().getBaseURL(), builder.toString(), this.getID()), limit) {
+
+            @Override
+            protected BoxLegalHoldAssignment.Info factory(JsonObject jsonObject) {
+                BoxLegalHoldAssignment assignment = new BoxLegalHoldAssignment(
+                        BoxLegalHold.this.getAPI(), jsonObject.get("id").asString());
+                return assignment.new Info(jsonObject);
+            }
+        };
     }
 
     /**

@@ -2,6 +2,7 @@ package com.box.sdk;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -144,5 +145,58 @@ public class BoxLegalHoldTest {
         BoxLegalHold policy = new BoxLegalHold(api, "0");
         BoxFileVersion version = new BoxFileVersion(api, "{\"id\": \"1\"}", "2");
         policy.assignTo(version);
+    }
+
+    /**
+     * Unit test for {@link BoxLegalHold#getAssignments(String...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetAssignmentsSendsCorrectRequestWithFields() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policies/0/assignments?fields=assigned_at",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"entries\": []}";
+                    }
+                };
+            }
+        });
+
+        BoxLegalHold policy = new BoxLegalHold(api, "0");
+        Iterator<BoxLegalHoldAssignment.Info> iterator = policy.getAssignments("assigned_at").iterator();
+        iterator.hasNext();
+    }
+
+    /**
+     * Unit test for {@link BoxLegalHold#getAssignments(String...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetAssignmentsSendsCorrectRequestWithOptionalParams() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/legal_hold_policies/0/assignments?assign_to_type=folder&assign_to_id=1&limit=99",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"entries\": []}";
+                    }
+                };
+            }
+        });
+
+        BoxLegalHold policy = new BoxLegalHold(api, "0");
+        Iterator<BoxLegalHoldAssignment.Info> iterator
+                = policy.getAssignments(BoxResource.getResourceType(BoxFolder.class), "1", 99).iterator();
+        iterator.hasNext();
     }
 }
