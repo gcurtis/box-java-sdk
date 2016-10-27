@@ -73,7 +73,7 @@ public class BoxLegalHold extends BoxResource {
      */
     public BoxLegalHoldAssignment.Info assignTo(BoxResource resource) {
         return BoxLegalHoldAssignment.create(
-                this.getAPI(), this.getID(), resource.getResourceType(resource.getClass()), resource.getID());
+                this.getAPI(), this.getID(), BoxResource.getResourceType(resource.getClass()), resource.getID());
     }
 
     /**
@@ -88,8 +88,9 @@ public class BoxLegalHold extends BoxResource {
     /**
      * Returns iterable containing assignments for this single legal hold policy.
      * Parameters can be used to filter retrieved assignments.
-     * @param type filter assignments of this type only. Can be "file_version", "file", "folder", or "user".
-     * @param id filter assignments to this ID only.
+     * @param type filter assignments of this type only.
+     *             Can be "file_version", "file", "folder", "user" or null if no type filter is necessary.
+     * @param id filter assignments to this ID only. Can be null if no id filter is necessary.
      * @param limit the limit of entries per page. Default limit is 100.
      * @param fields the fields to retrieve.
      * @return an iterable containing assignments for this single legal hold policy.
