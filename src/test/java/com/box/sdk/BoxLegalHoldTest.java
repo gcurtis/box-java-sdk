@@ -2,6 +2,7 @@ package com.box.sdk;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -128,13 +129,59 @@ public class BoxLegalHoldTest {
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {
-                        return "{\"id\": \"0\"}";
+                        return "{\"entries\": []}";
                     }
                 };
             }
         });
 
         BoxLegalHold policy = new BoxLegalHold(api, "0");
-        policy.getFileVersionHolds();
+        Iterator<BoxFileVersionLegalHold.Info> iterator = policy.getFileVersionHolds().iterator();
+        iterator.hasNext();
+    }
+
+    /**
+     * Unit test for {@link BoxLegalHold#getFileVersionHolds(String...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetFileVersionHoldsParseAllFieldsCorrectly() {
+        final String firstID = "241001";
+        final String secondID = "241005";
+        final String thirdID = "241009";
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"entries\": [\n"
+                + "    {\n"
+                + "      \"type\": \"legal_hold\",\n"
+                + "      \"id\": \"241001\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"type\": \"legal_hold\",\n"
+                + "      \"id\": \"241005\"\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"type\": \"legal_hold\",\n"
+                + "      \"id\": \"241009\"\n"
+                + "    }\n"
+                + "  ],\n"
+                + "  \"limit\": 100,\n"
+                + "  \"order\": [\n"
+                + "    {\n"
+                + "      \"by\": \"retention_policy_set_id, file_version_id\",\n"
+                + "      \"direction\": \"ASC\"\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxLegalHold policy = new BoxLegalHold(api, "0");
+        Iterator<BoxFileVersionLegalHold.Info> iterator = policy.getFileVersionHolds().iterator();
+        Assert.assertEquals(firstID, iterator.next().getID());
+        Assert.assertEquals(secondID, iterator.next().getID());
+        Assert.assertEquals(thirdID, iterator.next().getID());
+        Assert.assertEquals(false, iterator.hasNext());
     }
 }
