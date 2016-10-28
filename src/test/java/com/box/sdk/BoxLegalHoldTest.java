@@ -112,4 +112,29 @@ public class BoxLegalHoldTest {
         Assert.assertEquals(filterEndedAt, info.getFilterEndedAt());
         Assert.assertEquals(releaseNote, info.getReleaseNotes());
     }
+
+    /**
+     * Unit test for {@link BoxLegalHold#getFileVersionHolds(String...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetFileVersionHoldsSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/file_version_legal_holds?policy_id=0",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
+
+        BoxLegalHold policy = new BoxLegalHold(api, "0");
+        policy.getFileVersionHolds();
+    }
 }

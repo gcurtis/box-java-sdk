@@ -27,6 +27,18 @@ public class BoxLegalHold extends BoxResource {
     private static final URLTemplate LEGAL_HOLD_URL_TEMPLATE = new URLTemplate("legal_hold_policies/%s");
 
     /**
+     * The URL template used for operation with file version legal holds.
+     * @see #getFileVersionHolds(String...)
+     */
+    private static final URLTemplate LIST_OFFILE_VERSION_HOLDS_URL_TEMPLATE
+            = new URLTemplate("file_version_legal_holds");
+
+    /**
+     * The default limit of entries per response.
+     */
+    private static final int DEFAULT_LIMIT = 100;
+
+    /**
      * Constructs a BoxLegalHold for a resource with a given ID.
      *
      * @param api the API connection to be used by the resource.
@@ -50,6 +62,39 @@ public class BoxLegalHold extends BoxResource {
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
         return new Info(responseJSON);
+    }
+
+    /**
+     * Returns iterable with all non-deleted file version legal holds for this legal hold policy.
+     * @param fields the fields to retrieve.
+     * @return an iterable containing file version legal holds info.
+     */
+    public Iterable<BoxFileVersionLegalHold.Info> getFileVersionHolds(String ... fields) {
+        return getFileVersionHolds(DEFAULT_LIMIT, fields);
+    }
+
+    /**
+     * Returns iterable with all non-deleted file version legal holds for this legal hold policy.
+     * @param limit the limit of entries per response. The default value is 100.
+     * @param fields the fields to retrieve.
+     * @return an iterable containing file version legal holds info.
+     */
+    public Iterable<BoxFileVersionLegalHold.Info> getFileVersionHolds(int limit, String ... fields) {
+        QueryStringBuilder queryString = new QueryStringBuilder().appendParam("policy_id", this.getID());
+        if (fields.length > 0) {
+            queryString.appendParam("fields", fields);
+        }
+        URL url = LIST_OFFILE_VERSION_HOLDS_URL_TEMPLATE.buildWithQuery(getAPI().getBaseURL(), queryString.toString());
+        return new BoxResourceIterable<BoxFileVersionLegalHold.Info>(getAPI(), url, limit) {
+
+            @Override
+            protected BoxFileVersionLegalHold.Info factory(JsonObject jsonObject) {
+                BoxFileVersionLegalHold assignment
+                        = new BoxFileVersionLegalHold(getAPI(), jsonObject.get("id").asString());
+                return assignment.new Info(jsonObject);
+            }
+
+        };
     }
 
     /**
