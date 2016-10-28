@@ -124,7 +124,7 @@ public class BoxLegalHoldTest {
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/file_version_legal_holds?policy_id=0",
+                Assert.assertEquals("https://api.box.com/2.0/file_version_legal_holds?policy_id=0&limit=100",
                         request.getUrl().toString());
                 return new BoxJSONResponse() {
                     @Override

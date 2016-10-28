@@ -70,7 +70,7 @@ public class BoxLegalHold extends BoxResource {
      * @return an iterable containing file version legal holds info.
      */
     public Iterable<BoxFileVersionLegalHold.Info> getFileVersionHolds(String ... fields) {
-        return getFileVersionHolds(DEFAULT_LIMIT, fields);
+        return this.getFileVersionHolds(DEFAULT_LIMIT, fields);
     }
 
     /**
