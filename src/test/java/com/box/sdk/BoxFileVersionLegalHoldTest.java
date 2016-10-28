@@ -15,7 +15,7 @@ import com.eclipsesource.json.JsonObject;
 public class BoxFileVersionLegalHoldTest {
 
     /**
-     * Unit test for {@link BoxLegalHoldAssignment#getInfo(String...)}
+     * Unit test for {@link BoxFileVersionLegalHold#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -40,7 +40,7 @@ public class BoxFileVersionLegalHoldTest {
     }
 
     /**
-     * Unit test for {@link BoxLegalHoldAssignment#getInfo(String...)}
+     * Unit test for {@link BoxFileVersionLegalHold#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -94,5 +94,4 @@ public class BoxFileVersionLegalHoldTest {
         Assert.assertEquals(secondPolicyID, iterator.next().getID());
         Assert.assertEquals(false, iterator.hasNext());
     }
-
 }
