@@ -121,7 +121,17 @@ public class BoxRetentionPolicy extends BoxResource {
      * @return an iterable containing all assignments of given type.
      */
     public Iterable<BoxRetentionPolicyAssignment.Info> getFolderAssignments(String ... fields) {
-        return this.getAssignments(BoxRetentionPolicyAssignment.TYPE_FOLDER, fields);
+        return this.getFolderAssignments(DEFAULT_LIMIT, fields);
+    }
+
+    /**
+     * Returns iterable with all folder assignments of given type of this retention policy.
+     * @param limit the limit of entries per response. The default value is 100.
+     * @param fields the fields to retrieve.
+     * @return an iterable containing all assignments of given type.
+     */
+    public Iterable<BoxRetentionPolicyAssignment.Info> getFolderAssignments(int limit, String ... fields) {
+        return this.getAssignments(BoxRetentionPolicyAssignment.TYPE_FOLDER, limit, fields);
     }
 
     /**
@@ -130,22 +140,34 @@ public class BoxRetentionPolicy extends BoxResource {
      * @return an iterable containing all assignments of given type.
      */
     public Iterable<BoxRetentionPolicyAssignment.Info> getEnterpriseAssignments(String ... fields) {
-        return this.getAssignments(BoxRetentionPolicyAssignment.TYPE_ENTERPRISE, fields);
+        return this.getEnterpriseAssignments(DEFAULT_LIMIT, fields);
     }
+
+    /**
+     * Returns iterable with all enterprise assignments of given type of this retention policy.
+     * @param limit the limit of entries per response. The default value is 100.
+     * @param fields the fields to retrieve.
+     * @return an iterable containing all assignments of given type.
+     */
+    public Iterable<BoxRetentionPolicyAssignment.Info> getEnterpriseAssignments(int limit, String ... fields) {
+        return this.getAssignments(BoxRetentionPolicyAssignment.TYPE_ENTERPRISE, limit, fields);
+    }
+
 
     /**
      * Returns iterable with all assignments of given type of this retention policy.
      * @param type the type of the retention policy assignment to retrieve. Can either be "folder" or "enterprise".
+     * @param limit the limit of entries per response. The default value is 100.
      * @param fields the fields to retrieve.
      * @return an iterable containing all assignments of given type.
      */
-    private Iterable<BoxRetentionPolicyAssignment.Info> getAssignments(String type, String ... fields) {
+    private Iterable<BoxRetentionPolicyAssignment.Info> getAssignments(String type, int limit, String ... fields) {
         QueryStringBuilder queryString = new QueryStringBuilder().appendParam("type", type);
         if (fields.length > 0) {
             queryString.appendParam("fields", fields);
         }
         URL url = ASSIGNMENTS_URL_TEMPLATE.buildWithQuery(getAPI().getBaseURL(), queryString.toString(), getID());
-        return new BoxResourceIterable<BoxRetentionPolicyAssignment.Info>(getAPI(), url, DEFAULT_LIMIT) {
+        return new BoxResourceIterable<BoxRetentionPolicyAssignment.Info>(getAPI(), url, limit) {
 
             @Override
             protected BoxRetentionPolicyAssignment.Info factory(JsonObject jsonObject) {
