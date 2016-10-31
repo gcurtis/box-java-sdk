@@ -348,6 +348,82 @@ public class BoxGroupTest {
         iterator.hasNext();
     }
 
+    /**
+     * Unit test for {@link BoxGroup#updateInfo(BoxGroup.Info)}.
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testUpdateInfoSendsCorrectJSON() {
+        final String name = "family";
+        final String provenance = "non-empty provenance";
+        final String externalSyncIdentifier = "non-empty identifier";
+        final String description = "non-empty description";
+        final String invitabilityLevel = "non-empty level";
+        final String memberViewabilityLevel = "another non-empty level";
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new JSONRequestInterceptor() {
+            @Override
+            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+                Assert.assertEquals("https://api.box.com/2.0/groups/0", request.getUrl().toString());
+                Assert.assertEquals(name, json.get("name").asString());
+                Assert.assertEquals(provenance, json.get("provenance").asString());
+                Assert.assertEquals(externalSyncIdentifier, json.get("external_sync_identifier").asString());
+                Assert.assertEquals(description, json.get("description").asString());
+                Assert.assertEquals(invitabilityLevel, json.get("invitability_level").asString());
+                Assert.assertEquals(memberViewabilityLevel, json.get("member_viewability_level").asString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{}";
+                    }
+                };
+            }
+        });
+
+        BoxGroup group = new BoxGroup(api, "0");
+        BoxGroup.Info info = group.new Info();
+        info.addPendingChange("name", name);
+        info.addPendingChange("provenance", provenance);
+        info.addPendingChange("external_sync_identifier", externalSyncIdentifier);
+        info.addPendingChange("description", description);
+        info.addPendingChange("invitability_level", invitabilityLevel);
+        info.addPendingChange("member_viewability_level", memberViewabilityLevel);
+        group.updateInfo(info);
+    }
+
+    /**
+     * Unit test for {@link BoxGroup#updateInfo(BoxGroup.Info)}.
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testUpdateInfoParseAllFieldsCorrectly() throws ParseException {
+        final String id = "119720";
+        final String name = "family";
+        final Date createdAt = BoxDateFormat.parse("2013-05-16T15:27:57-07:00");
+        final Date modifiedAt = BoxDateFormat.parse("2013-05-17T15:27:57-07:00");
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "    \"type\": \"group\",\n"
+                + "    \"id\": \"119720\",\n"
+                + "    \"name\": \"family\",\n"
+                + "    \"created_at\": \"2013-05-16T15:27:57-07:00\",\n"
+                + "    \"modified_at\": \"2013-05-17T15:27:57-07:00\"\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxGroup group = new BoxGroup(api, id);
+        BoxGroup.Info info = group.new Info();
+        info.addPendingChange("name", name);
+        group.updateInfo(info);
+        Assert.assertEquals(id, info.getID());
+        Assert.assertEquals(name, info.getName());
+        Assert.assertEquals(createdAt, info.getCreatedAt());
+        Assert.assertEquals(modifiedAt, info.getModifiedAt());
+    }
+
     @Test
     @Category(IntegrationTest.class)
     public void createAndDeleteGroupSucceeds() {

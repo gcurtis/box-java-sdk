@@ -285,6 +285,19 @@ public class BoxGroup extends BoxCollaborator {
     }
 
     /**
+     * Updates the information about this group with any info fields that have been modified locally.
+     * @param info the updated info.
+     */
+    public void updateInfo(BoxGroup.Info info) {
+        URL url = GROUP_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxJSONRequest request = new BoxJSONRequest(this.getAPI(), url, "PUT");
+        request.setBody(info.getPendingChanges());
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        JsonObject jsonObject = JsonObject.readFrom(response.getJSON());
+        info.update(jsonObject);
+    }
+
+    /**
      * Contains information about a BoxGroup.
      */
     public class Info extends BoxCollaborator.Info {
