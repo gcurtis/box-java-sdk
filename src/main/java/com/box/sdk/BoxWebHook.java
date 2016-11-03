@@ -2,9 +2,11 @@ package com.box.sdk;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,6 +54,16 @@ public class BoxWebHook extends BoxResource {
      * JSON Key for {@link BoxWebHook.Info#getTriggers()}.
      */
     private static final String JSON_KEY_TRIGGERS = "triggers";
+
+    /**
+     * JSON Key for {@link BoxWebHook.Info#getCreatedBy()}.
+     */
+    private static final String JSON_KEY_CREATED_BY = "created_by";
+
+    /**
+     * JSON Key for {@link BoxWebHook.Info#getCreatedAt()}.
+     */
+    private static final String JSON_KEY_CREATED_AT = "created_at";
 
     /**
      * {@link URLTemplate} for {@link BoxWebHook}s resource.
@@ -276,6 +288,16 @@ public class BoxWebHook extends BoxResource {
         private Set<Trigger> triggers;
 
         /**
+         * @see #getCreatedBy()
+         */
+        private BoxUser.Info createdBy;
+
+        /**
+         * @see #getCreatedAt()
+         */
+        private Date createdAt;
+
+        /**
          * Constructs an Info object with current target.
          */
         public Info() {
@@ -309,6 +331,24 @@ public class BoxWebHook extends BoxResource {
                     this.address = new URL(jsonObject.get(JSON_KEY_ADDRESS).asString());
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
+                }
+            }
+
+            if (jsonObject.get(JSON_KEY_CREATED_BY) != null) {
+                JsonObject userJSON = jsonObject.get(JSON_KEY_CREATED_BY).asObject();
+                if (this.createdBy == null) {
+                    BoxUser user = new BoxUser(getAPI(), userJSON.get(JSON_KEY_TARGET_ID).asString());
+                    this.createdBy = user.new Info(userJSON);
+                } else {
+                    this.createdBy.update(userJSON);
+                }
+            }
+
+            if (jsonObject.get(JSON_KEY_CREATED_AT) != null) {
+                try {
+                    this.createdAt = BoxDateFormat.parse(jsonObject.get(JSON_KEY_CREATED_AT).asString());
+                } catch (ParseException e) {
+                    assert false : "A ParseException indicates a bug in the SDK.";
                 }
             }
         }
@@ -396,6 +436,20 @@ public class BoxWebHook extends BoxResource {
             }
 
             return this;
+        }
+
+        /**
+         * @return Info about the user who created this webhook.
+         */
+        public BoxUser.Info getCreatedBy() {
+            return this.createdBy;
+        }
+
+        /**
+         * @return the time this webhook was created.
+         */
+        public Date getCreatedAt() {
+            return this.createdAt;
         }
 
     }

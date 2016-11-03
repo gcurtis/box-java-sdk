@@ -3,8 +3,11 @@ package com.box.sdk;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,11 +19,105 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import com.eclipsesource.json.JsonObject;
 
+/**
+ * {@link BoxWebHook} related tests.
+ */
 public class BoxWebHookTest {
+
+    /**
+     * Unit test for {@link BoxWebHook#create(BoxResource, URL, BoxWebHook.Trigger...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testCreateSendsCorrectJson() throws MalformedURLException {
+        final String targetID = "1";
+        final String targetType = "folder";
+        final String address = "http://box.com";
+        final String trigger = "FILE.UPLOADED";
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new JSONRequestInterceptor() {
+            @Override
+            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+                Assert.assertEquals("https://api.box.com/2.0/webhooks",
+                        request.getUrl().toString());
+                Assert.assertEquals(targetID, json.get("target").asObject().get("id").asString());
+                Assert.assertEquals(targetType, json.get("target").asObject().get("type").asString());
+                Assert.assertEquals(address, json.get("address").asString());
+                Assert.assertEquals(trigger, json.get("triggers").asArray().get(0).asString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
+
+        BoxWebHook.create(new BoxFolder(api, "1"), new URL(address), BoxWebHook.Trigger.FILE_UPLOADED);
+    }
+
+    /**
+     * Unit test for {@link BoxWebHook#create(BoxResource, URL, BoxWebHook.Trigger...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testCreateParseAllFieldsCorrectly() throws ParseException, MalformedURLException {
+        final String id = "4165";
+        final String targetID = "5016243669";
+        final String targetType = "file";
+        final String createdByID = "2030392653";
+        final String createdByName = "John Q. Developer";
+        final String createdByLogin = "johnq@dev.name";
+        final Date createdAt = BoxDateFormat.parse("2016-05-09T17:41:27-07:00");
+        final URL address = new URL("https://dev.name/actions/file_changed");
+        final BoxWebHook.Trigger firstTrigger = BoxWebHook.Trigger.FILE_DOWNLOADED;
+        final BoxWebHook.Trigger secondTrigger = BoxWebHook.Trigger.FILE_UPLOADED;
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"id\": \"4165\",\n"
+                + "  \"type\": \"webhook\",\n"
+                + "  \"target\": {\n"
+                + "    \"id\": \"5016243669\",\n"
+                + "    \"type\": \"file\"\n"
+                + "  },\n"
+                + "  \"created_by\": {\n"
+                + "    \"type\": \"user\",\n"
+                + "    \"id\": \"2030392653\",\n"
+                + "    \"name\": \"John Q. Developer\",\n"
+                + "    \"login\": \"johnq@dev.name\"\n"
+                + "  },\n"
+                + "  \"created_at\": \"2016-05-09T17:41:27-07:00\",\n"
+                + "  \"address\": \"https://dev.name/actions/file_changed\",\n"
+                + "  \"triggers\": [\n"
+                + "    \"FILE.DOWNLOADED\",\n"
+                + "    \"FILE.UPLOADED\"\n"
+                + "  ]\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxWebHook.Info info = BoxWebHook.create(new BoxFile(api, "0"), address);
+        Assert.assertEquals(id, info.getID());
+        Assert.assertEquals(targetID, info.getTarget().getId());
+        Assert.assertEquals(targetType, info.getTarget().getType());
+        Assert.assertEquals(createdByID, info.getCreatedBy().getID());
+        Assert.assertEquals(createdByName, info.getCreatedBy().getName());
+        Assert.assertEquals(createdByLogin, info.getCreatedBy().getLogin());
+        Assert.assertEquals(createdAt, info.getCreatedAt());
+        Assert.assertEquals(address, info.getAddress());
+        Assert.assertEquals(true, info.getTriggers().contains(firstTrigger));
+        Assert.assertEquals(true, info.getTriggers().contains(secondTrigger));
+
+    }
+
     @Test
     @Category(IntegrationTest.class)
     public void createWebHookFileSucceeds() throws IOException {
