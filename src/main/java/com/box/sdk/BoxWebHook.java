@@ -181,10 +181,17 @@ public class BoxWebHook extends BoxResource {
      *
      * @param api
      *            the API connection to be used by the resource
+     * @param fields
+     *            the fields to retrieve.
      * @return existing {@link BoxWebHook.Info}-s
      */
-    public static Iterable<BoxWebHook.Info> all(final BoxAPIConnection api) {
-        return new BoxResourceIterable<BoxWebHook.Info>(api, WEBHOOKS_URL_TEMPLATE.build(api.getBaseURL()), 64) {
+    public static Iterable<BoxWebHook.Info> all(final BoxAPIConnection api, String ... fields) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
+        return new BoxResourceIterable<BoxWebHook.Info>(
+                api, WEBHOOKS_URL_TEMPLATE.buildWithQuery(api.getBaseURL(), builder.toString()), 64) {
 
             @Override
             protected BoxWebHook.Info factory(JsonObject jsonObject) {
@@ -232,10 +239,15 @@ public class BoxWebHook extends BoxResource {
     }
 
     /**
+     * @param fields the fields to retrieve.
      * @return Gets information about this {@link BoxWebHook}.
      */
-    public BoxWebHook.Info getInfo() {
-        URL url = WEBHOOK_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+    public BoxWebHook.Info getInfo(String ... fields) {
+        QueryStringBuilder builder = new QueryStringBuilder();
+        if (fields.length > 0) {
+            builder.appendParam("fields", fields);
+        }
+        URL url = WEBHOOK_URL_TEMPLATE.buildWithQuery(this.getAPI().getBaseURL(), builder.toString(), this.getID());
         BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
         BoxJSONResponse response = (BoxJSONResponse) request.send();
         return new Info(JsonObject.readFrom(response.getJSON()));

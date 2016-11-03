@@ -119,11 +119,11 @@ public class BoxWebHookTest {
     }
 
     /**
-     * Unit test for {@link BoxWebHook#getInfo()}
+     * Unit test for {@link BoxWebHook#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
-    public void testGetInfoSendsCorrectRequest() {
+    public void testGetInfoSendsCorrectRequestWithoutFields() {
         BoxAPIConnection api = new BoxAPIConnection("");
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
@@ -144,7 +144,32 @@ public class BoxWebHookTest {
     }
 
     /**
-     * Unit test for {@link BoxWebHook#getInfo()}
+     * Unit test for {@link BoxWebHook#getInfo(String...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetInfoSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/webhooks/0?fields=created_at",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
+
+        BoxWebHook hook = new BoxWebHook(api, "0");
+        hook.getInfo("created_at");
+    }
+
+    /**
+     * Unit test for {@link BoxWebHook#getInfo(String...)}
      */
     @Test
     @Category(UnitTest.class)
@@ -217,6 +242,28 @@ public class BoxWebHookTest {
 
         BoxWebHook hook = new BoxWebHook(api, "0");
         hook.delete();
+    }
+
+    /**
+     * Unit test for {@link BoxWebHook#all(BoxAPIConnection)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testAllSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/webhooks/0?fields=created_at",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
     }
 
     @Test
