@@ -118,6 +118,107 @@ public class BoxWebHookTest {
 
     }
 
+    /**
+     * Unit test for {@link BoxWebHook#getInfo()}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetInfoSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/webhooks/0",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
+
+        BoxWebHook hook = new BoxWebHook(api, "0");
+        hook.getInfo();
+    }
+
+    /**
+     * Unit test for {@link BoxWebHook#getInfo()}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetInfoParseAllFieldsCorrectly() throws ParseException, MalformedURLException {
+        final String id = "4137";
+        final String targetID = "5018848529";
+        final String targetType = "file";
+        final String createdByID = "2030392653";
+        final String createdByName = "John Q. Developer";
+        final String createdByLogin = "johnq@example.net";
+        final Date createdAt = BoxDateFormat.parse("2016-05-04T18:51:45-07:00");
+        final URL address = new URL("https://example.net/actions/file_changed");
+        final BoxWebHook.Trigger trigger = BoxWebHook.Trigger.FILE_PREVIEWED;
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"id\": \"4137\",\n"
+                + "  \"type\": \"webhook\",\n"
+                + "  \"target\": {\n"
+                + "    \"id\": \"5018848529\",\n"
+                + "    \"type\": \"file\"\n"
+                + "  },\n"
+                + "  \"created_by\": {\n"
+                + "    \"type\": \"user\",\n"
+                + "    \"id\": \"2030392653\",\n"
+                + "    \"name\": \"John Q. Developer\",\n"
+                + "    \"login\": \"johnq@example.net\"\n"
+                + "  },\n"
+                + "  \"created_at\": \"2016-05-04T18:51:45-07:00\",\n"
+                + "  \"address\": \"https://example.net/actions/file_changed\",\n"
+                + "  \"triggers\": [\n"
+                + "    \"FILE.PREVIEWED\"\n"
+                + "  ]\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxWebHook.Info info = new BoxWebHook(api, id).getInfo();
+        Assert.assertEquals(id, info.getID());
+        Assert.assertEquals(targetID, info.getTarget().getId());
+        Assert.assertEquals(targetType, info.getTarget().getType());
+        Assert.assertEquals(createdByID, info.getCreatedBy().getID());
+        Assert.assertEquals(createdByName, info.getCreatedBy().getName());
+        Assert.assertEquals(createdByLogin, info.getCreatedBy().getLogin());
+        Assert.assertEquals(createdAt, info.getCreatedAt());
+        Assert.assertEquals(address, info.getAddress());
+        Assert.assertEquals(trigger, info.getTriggers().toArray()[0]);
+    }
+
+    /**
+     * Unit test for {@link BoxWebHook#delete()}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testDeleteSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/webhooks/0",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
+
+        BoxWebHook hook = new BoxWebHook(api, "0");
+        hook.delete();
+    }
+
     @Test
     @Category(IntegrationTest.class)
     public void createWebHookFileSucceeds() throws IOException {
