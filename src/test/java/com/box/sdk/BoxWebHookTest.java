@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -23,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 
 /**
@@ -245,17 +247,139 @@ public class BoxWebHookTest {
     }
 
     /**
-     * Unit test for {@link BoxWebHook#all(BoxAPIConnection)}
+     * Unit test for {@link BoxWebHook#all(BoxAPIConnection, String...)}
      */
     @Test
     @Category(UnitTest.class)
-    public void testAllSendsCorrectRequest() {
+    public void testAllSendsCorrectRequestWithoutParams() {
         BoxAPIConnection api = new BoxAPIConnection("");
         api.setRequestInterceptor(new RequestInterceptor() {
             @Override
             public BoxAPIResponse onRequest(BoxAPIRequest request) {
-                Assert.assertEquals("https://api.box.com/2.0/webhooks/0?fields=created_at",
+                Assert.assertEquals("https://api.box.com/2.0/webhooks?limit=64",
                         request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"entries\": []}";
+                    }
+                };
+            }
+        });
+
+        Iterator<BoxWebHook.Info> iterator = BoxWebHook.all(api).iterator();
+        iterator.hasNext();
+    }
+
+    /**
+     * Unit test for {@link BoxWebHook#all(BoxAPIConnection, String...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testAllSendsCorrectRequestWithFields() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals("https://api.box.com/2.0/webhooks?fields=created_at%2Ccreated_by&limit=64",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"entries\": []}";
+                    }
+                };
+            }
+        });
+
+        Iterator<BoxWebHook.Info> iterator = BoxWebHook.all(api, "created_at", "created_by").iterator();
+        iterator.hasNext();
+    }
+
+    /**
+     * Unit test for {@link BoxWebHook#all(BoxAPIConnection, String...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testAllParseAllFieldsCorrectly() {
+        final String firstID = "4161";
+        final String firstTargetID = "5018326685";
+        final String firstTargetType = "folder";
+        final String secondID = "4165";
+        final String secondTargetID = "5016243669";
+        final String secondTargerType = "file";
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"entries\": [\n"
+                + "    {\n"
+                + "      \"id\": \"4161\",\n"
+                + "      \"type\": \"webhook\",\n"
+                + "      \"target\": {\n"
+                + "        \"id\": \"5018326685\",\n"
+                + "        \"type\": \"folder\"\n"
+                + "      }\n"
+                + "    },\n"
+                + "    {\n"
+                + "      \"id\": \"4165\",\n"
+                + "      \"type\": \"webhook\",\n"
+                + "      \"target\": {\n"
+                + "        \"id\": \"5016243669\",\n"
+                + "        \"type\": \"file\"\n"
+                + "      }\n"
+                + "    }\n"
+                + "  ],\n"
+                + "  \"limit\": 3\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        Iterator<BoxWebHook.Info> iterator = BoxWebHook.all(api).iterator();
+        BoxWebHook.Info info = iterator.next();
+        Assert.assertEquals(firstID, info.getID());
+        Assert.assertEquals(firstTargetID, info.getTarget().getId());
+        Assert.assertEquals(firstTargetType, info.getTarget().getType());
+        info = iterator.next();
+        Assert.assertEquals(secondID, info.getID());
+        Assert.assertEquals(secondTargetID, info.getTarget().getId());
+        Assert.assertEquals(secondTargerType, info.getTarget().getType());
+        Assert.assertEquals(false, iterator.hasNext());
+
+    }
+
+    /**
+     * Unit test for {@link BoxWebHook#updateInfo(BoxWebHook.Info)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testUpdateSendCorrectJSON() {
+        final String address = "";
+        final String firstTrigger = "FILE.PREVIEWED";
+        final String secondTrigger = "FILE.DOWNLOADED";
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"id\": \"4137\",\n"
+                + "  \"type\": \"webhook\",\n"
+                + "  \"target\": {\n"
+                + "    \"id\": \"5018848529\",\n"
+                + "    \"type\": \"file\"\n"
+                + "  }\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxWebHook hook = new BoxWebHook(api, "0");
+        BoxWebHook.Info info = hook.new Info();
+
+        api.setRequestInterceptor(new JSONRequestInterceptor() {
+            @Override
+            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+                Assert.assertEquals("https://api.box.com/2.0/webhooks/0",
+                        request.getUrl().toString());
+                Assert.assertEquals(address, json.get("address").asString());
+                Assert.assertEquals(firstTrigger, json.get("triggers").asArray().get(0).asString());
+                Assert.assertEquals(secondTrigger, json.get("triggers").asArray().get(1).asString());
                 return new BoxJSONResponse() {
                     @Override
                     public String getJSON() {
@@ -264,6 +388,67 @@ public class BoxWebHookTest {
                 };
             }
         });
+
+        info.addPendingChange("address", address);
+        info.addPendingChange("triggers", new JsonArray().add(firstTrigger).add(secondTrigger));
+        hook.updateInfo(info);
+    }
+
+    /**
+     * Unit test for {@link BoxWebHook#updateInfo(BoxWebHook.Info)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testUpdateParseAllFieldsCorrectly() throws ParseException, MalformedURLException {
+        final String id = "4133";
+        final String targetID = "1000605797";
+        final String targetType = "folder";
+        final String createdByID = "2030392653";
+        final String createdByName = "John Q. Developer";
+        final String createdByLogin = "john2@example.net";
+        final Date createdAt = BoxDateFormat.parse("2016-05-04T18:51:17-07:00");
+        final URL address = new URL("https://notification.example.net");
+        final BoxWebHook.Trigger firstTrigger = BoxWebHook.Trigger.FILE_PREVIEWED;
+        final BoxWebHook.Trigger secondTrigger = BoxWebHook.Trigger.FILE_DOWNLOADED;
+
+        final JsonObject fakeJSONResponse = JsonObject.readFrom("{\n"
+                + "  \"id\": \"4133\",\n"
+                + "  \"type\": \"webhook\",\n"
+                + "  \"target\": {\n"
+                + "    \"id\": \"1000605797\",\n"
+                + "    \"type\": \"folder\"\n"
+                + "  },\n"
+                + "  \"created_by\": {\n"
+                + "    \"type\": \"user\",\n"
+                + "    \"id\": \"2030392653\",\n"
+                + "    \"name\": \"John Q. Developer\",\n"
+                + "    \"login\": \"john2@example.net\"\n"
+                + "  },\n"
+                + "  \"created_at\": \"2016-05-04T18:51:17-07:00\",\n"
+                + "  \"address\": \"https://notification.example.net\",\n"
+                + "  \"triggers\": [\n"
+                + "    \"FILE.PREVIEWED\", \"FILE.DOWNLOADED\"\n"
+                + "  ]\n"
+                + "}");
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(JSONRequestInterceptor.respondWith(fakeJSONResponse));
+
+        BoxWebHook hook = new BoxWebHook(api, id);
+        BoxWebHook.Info info = hook.new Info();
+        info.addPendingChange("address", "fake pending change");
+        hook.updateInfo(info);
+        Assert.assertEquals(id, info.getID());
+        Assert.assertEquals(targetID, info.getTarget().getId());
+        Assert.assertEquals(targetType, info.getTarget().getType());
+        Assert.assertEquals(createdByID, info.getCreatedBy().getID());
+        Assert.assertEquals(createdByName, info.getCreatedBy().getName());
+        Assert.assertEquals(createdByLogin, info.getCreatedBy().getLogin());
+        Assert.assertEquals(createdAt, info.getCreatedAt());
+        Assert.assertEquals(address, info.getAddress());
+        Assert.assertEquals(true, info.getTriggers().contains(firstTrigger));
+        Assert.assertEquals(true, info.getTriggers().contains(secondTrigger));
+
     }
 
     @Test

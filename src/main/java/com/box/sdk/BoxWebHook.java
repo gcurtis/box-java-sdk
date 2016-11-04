@@ -464,6 +464,44 @@ public class BoxWebHook extends BoxResource {
             return this.createdAt;
         }
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        void parseJSONMember(JsonObject.Member member) {
+            super.parseJSONMember(member);
+            String memberName = member.getName();
+            JsonValue value = member.getValue();
+            try {
+                if (memberName.equals(JSON_KEY_TARGET)) {
+                    String targetType = value.asObject().get(JSON_KEY_TARGET_TYPE).asString();
+                    String targetId = value.asObject().get(JSON_KEY_TARGET_ID).asString();
+                    this.target = new Target(targetType, targetId);
+                } else if (memberName.equals(JSON_KEY_TRIGGERS)) {
+                    this.triggers = new HashSet<Trigger>(
+                            CollectionUtils.map(value.asArray().values(), JSON_VALUE_TO_TRIGGER)
+                    );
+                } else if (memberName.equals(JSON_KEY_ADDRESS)) {
+                    this.address = new URL(value.asString());
+                } else if (memberName.equals(JSON_KEY_CREATED_BY)) {
+                    JsonObject userJSON = value.asObject();
+                    if (this.createdBy == null) {
+                        String userID = userJSON.get(JSON_KEY_ID).asString();
+                        BoxUser user = new BoxUser(getAPI(), userID);
+                        this.createdBy = user.new Info(userJSON);
+                    } else {
+                        this.createdBy.update(userJSON);
+                    }
+                } else if (memberName.equals("created_at")) {
+                    this.createdAt = BoxDateFormat.parse(value.asString());
+                }
+            } catch (ParseException e) {
+                assert false : "A ParseException indicates a bug in the SDK.";
+            } catch (MalformedURLException e) {
+                assert false : "A MalformedURLException indicates a bug in the SDK.";
+            }
+        }
+
     }
 
     /**
