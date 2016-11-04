@@ -184,8 +184,7 @@ public class BoxWebHook extends BoxResource {
      * @return existing {@link BoxWebHook.Info}-s
      */
     public static Iterable<BoxWebHook.Info> all(final BoxAPIConnection api) {
-        return new BoxResourceIterable<BoxWebHook.Info>(
-                api, WEBHOOKS_URL_TEMPLATE.build(api.getBaseURL()), 64) {
+        return new BoxResourceIterable<BoxWebHook.Info>(api, WEBHOOKS_URL_TEMPLATE.build(api.getBaseURL()), 64) {
 
             @Override
             protected BoxWebHook.Info factory(JsonObject jsonObject) {
