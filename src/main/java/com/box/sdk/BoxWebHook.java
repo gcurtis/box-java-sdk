@@ -181,6 +181,26 @@ public class BoxWebHook extends BoxResource {
      *
      * @param api
      *            the API connection to be used by the resource
+     * @return existing {@link BoxWebHook.Info}-s
+     */
+    public static Iterable<BoxWebHook.Info> all(final BoxAPIConnection api) {
+        return new BoxResourceIterable<BoxWebHook.Info>(
+                api, WEBHOOKS_URL_TEMPLATE.build(api.getBaseURL()), 64) {
+
+            @Override
+            protected BoxWebHook.Info factory(JsonObject jsonObject) {
+                BoxWebHook webHook = new BoxWebHook(api, jsonObject.get("id").asString());
+                return webHook.new Info(jsonObject);
+            }
+
+        };
+    }
+
+    /**
+     * Returns iterator over all {@link BoxWebHook}-s.
+     *
+     * @param api
+     *            the API connection to be used by the resource
      * @param fields
      *            the fields to retrieve.
      * @return existing {@link BoxWebHook.Info}-s
@@ -236,6 +256,16 @@ public class BoxWebHook extends BoxResource {
         }
         throw new IllegalArgumentException(String.format(
                 "Provided trigger '%s' is not supported on provided target '%s'.", trigger.name(), targetType));
+    }
+
+    /**
+     * @return Gets information about this {@link BoxWebHook}.
+     */
+    public BoxWebHook.Info getInfo() {
+        URL url = WEBHOOK_URL_TEMPLATE.build(this.getAPI().getBaseURL(), this.getID());
+        BoxAPIRequest request = new BoxAPIRequest(this.getAPI(), url, "GET");
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        return new Info(JsonObject.readFrom(response.getJSON()));
     }
 
     /**

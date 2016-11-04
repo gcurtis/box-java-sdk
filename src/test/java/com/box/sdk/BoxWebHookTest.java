@@ -121,7 +121,7 @@ public class BoxWebHookTest {
     }
 
     /**
-     * Unit test for {@link BoxWebHook#getInfo(String...)}
+     * Unit test for {@link BoxWebHook#getInfo())}
      */
     @Test
     @Category(UnitTest.class)
@@ -171,7 +171,7 @@ public class BoxWebHookTest {
     }
 
     /**
-     * Unit test for {@link BoxWebHook#getInfo(String...)}
+     * Unit test for {@link BoxWebHook#getInfo()}
      */
     @Test
     @Category(UnitTest.class)
@@ -247,7 +247,7 @@ public class BoxWebHookTest {
     }
 
     /**
-     * Unit test for {@link BoxWebHook#all(BoxAPIConnection, String...)}
+     * Unit test for {@link BoxWebHook#all(BoxAPIConnection)}
      */
     @Test
     @Category(UnitTest.class)
@@ -297,7 +297,7 @@ public class BoxWebHookTest {
     }
 
     /**
-     * Unit test for {@link BoxWebHook#all(BoxAPIConnection, String...)}
+     * Unit test for {@link BoxWebHook#all(BoxAPIConnection)}
      */
     @Test
     @Category(UnitTest.class)
