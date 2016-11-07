@@ -256,6 +256,37 @@ public class BoxTaskTest {
     }
 
     /**
+     * Unit test for {@link BoxTask#addAssignmentByLogin(String)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testAddAssignmentByLoginSendsCorrectJson() {
+        final String taskType = "task";
+        final String taskID = "0";
+        final String assignToLogin = "login@somewhere.com";
+
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new JSONRequestInterceptor() {
+            @Override
+            protected BoxAPIResponse onJSONRequest(BoxJSONRequest request, JsonObject json) {
+                Assert.assertEquals("https://api.box.com/2.0/task_assignments",
+                        request.getUrl().toString());
+                Assert.assertEquals(taskType, json.get("task").asObject().get("type").asString());
+                Assert.assertEquals(taskID, json.get("task").asObject().get("id").asString());
+                Assert.assertEquals(assignToLogin, json.get("assign_to").asObject().get("login").asString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"id\": \"0\"}";
+                    }
+                };
+            }
+        });
+
+        new BoxTask(api, taskID).addAssignmentByLogin(assignToLogin);
+    }
+
+    /**
      * Unit test for {@link BoxTask#addAssignment(BoxUser)}
      */
     @Test

@@ -67,6 +67,33 @@ public class BoxTask extends BoxResource {
     }
 
     /**
+     * Adds a new assignment to this task using user's login as identifier.
+     * @param assignToLogin the login of user to assign the task to.
+     * @return information about the newly added task assignment.
+     */
+    public BoxTaskAssignment.Info addAssignmentByLogin(String assignToLogin) {
+        JsonObject taskJSON = new JsonObject();
+        taskJSON.add("type", "task");
+        taskJSON.add("id", this.getID());
+
+        JsonObject assignToJSON = new JsonObject();
+        assignToJSON.add("login", assignToLogin);
+
+        JsonObject requestJSON = new JsonObject();
+        requestJSON.add("task", taskJSON);
+        requestJSON.add("assign_to", assignToJSON);
+
+        URL url = ADD_TASK_ASSIGNMENT_URL_TEMPLATE.build(this.getAPI().getBaseURL());
+        BoxJSONRequest request = new BoxJSONRequest(this.getAPI(), url, "POST");
+        request.setBody(requestJSON.toString());
+        BoxJSONResponse response = (BoxJSONResponse) request.send();
+        JsonObject responseJSON = JsonObject.readFrom(response.getJSON());
+
+        BoxTaskAssignment addedAssignment = new BoxTaskAssignment(this.getAPI(), responseJSON.get("id").asString());
+        return addedAssignment.new Info(responseJSON);
+    }
+
+    /**
      * Gets any assignments for this task.
      * @return a list of assignments for this task.
      */
