@@ -112,7 +112,7 @@ for (BoxLegalHoldAssignment.Info assignmentInfo : assignments) {
 Create New Assignment
 --------------
 
-Description [`method()`][link]
+To create new legal hold policy assignment call [`assignTo(BoxResource)`][create-assignment] method. Currently only BoxFile, BoxFileVersion, BoxFolder and BoxUser objects are supported as a parameter.
 
 ```java
 example;
