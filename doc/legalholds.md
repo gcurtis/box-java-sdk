@@ -1,0 +1,154 @@
+Legal Holds Policy
+======
+
+Legal Hold Policy information describes the basic characteristics of the Policy, such as name, description, and filter dates.
+
+* [Get Legal Hold Policy](#get-legal-hold-policy)
+* [Get List of Legal Hold Policies](#get-list-of-legal-hold-policies)
+* [Create New Legal Hold Policy](#create-new-legal-hold-policy)
+* [Update Existing Legal Hold Policy](#update-existing-legal-hold-policy)
+* [Delete Legal Hold Policy](#delete-legal-hold-policy)
+* [Get Assignment](#get-assignment)
+* [Get List of Assignments](#get-list-of-assignments)
+* [Create New Assignment](#create-new-assignment)
+* [Delete Assignment](#delete-assignment)
+* [Get File Version Legal Hold](#get-file-version-legal-hold)
+* [Get List of File Version Legal Holds](#get-list-of-file-version-legal-holds)
+
+Get Legal Hold Policy
+--------------
+
+Calling [`getInfo(String...)`][get-info] will return a BoxLegalHold.Info object containing information about the legal hold policy. If necessary to retrieve limited set of fields, it is possible to specify them using param.
+
+```java
+BoxLegalHold policy = new BoxLegalHold(api, id);
+BoxLegalHold.Info policyINfo = policy.getInfo();
+```
+
+[get-info]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#getInfo(java.lang.String...)
+
+Get List of Legal Hold Policies
+--------------
+
+Calling the static [`getAll(BoxAPIConnection)`][get-list-of-legal-hold-policies] will return an iterable that will page through all of the legal hold policies.
+It is possible to specify name of legal hold policy, maximum number of items per response and fields to retrieve by calling the static [`getAll(BoxAPIConnection, String, int, String...)`][get-list-of-legal-hold-policies-with-fields] method.
+
+```java
+Iterable<BoxLegalHold.Info> policies = BoxLegalHold.getAll(api);
+for (BoxLegalHold.Info policyInfo : policies) {
+    // Do something with the legal hold policy.
+}
+```
+
+[get-list-of-legal-hold-policies]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#getAll(com.box.sdk.BoxAPIConnection)
+[get-list-of-legal-hold-policies-with-fields]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#getAll(com.box.sdk.BoxAPIConnection,%20java.lang.String,%20int,%20java.lang.String...)
+
+Create New Legal Hold Policy
+--------------
+
+The static [`create(BoxAPIConnection, String)`][create-new-legal-hold-policy] method will let you create a new legal hold policy with a specified name. The static [`create(BoxAPIConnection, String, String, Date, Date)`][create-new-legal-hold-policy-with-dates] method will let you create a new legal hold policy with a specified name, description, start and end dates.
+
+```java
+BoxLegalHold.Info policyInfo = BoxLegalHold.create(api, name, description, startedAt, endedAt);
+```
+
+[create-new-legal-hold-policy]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#create(com.box.sdk.BoxAPIConnection,%20java.lang.String)
+[create-new-legal-hold-policy-with-dates]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#create(com.box.sdk.BoxAPIConnection,%20java.lang.String,%20java.lang.String,%20java.util.Date,%20java.util.Date)
+
+Update Existing Legal Hold Policy
+--------------
+
+Updating a legal hold policy's information is done by calling [`updateInfo(BoxLegalHold.Info)`][update-info].
+
+```java
+BoxLegalHold policy = new BoxLegalHold(api, id);
+BoxLegalHold.Info info = policy.new Info();
+info.addPendingChange("description", "new description");
+policy.updateInfo(info);
+```
+
+[update-info]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#update(com.box.sdk.BoxLegalHold.Info)
+
+Delete Legal Hold Policy
+--------------
+
+A legal hold policy can be deleted by calling the [`delete()`][delete] method.
+
+```java
+BoxLegalHold policy = new BoxLegalHold(api, id);
+policy.delete();
+```
+
+[delete]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#delete()
+
+Get Assignment
+--------------
+
+Calling [`getInfo(String...)`][get-assignment] will return a BoxLegalHoldAssignment.Info object containing information about the legal hold policy assignment.
+
+```java
+BoxLegalHoldAssignment assignment = new BoxLegalHoldAssignment(api, id);
+BoxLegalHoldAssignment.Info info = assignment.getInfo("assigned_by");
+```
+
+[get-assignment]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHoldAssignment.html#getInfo(java.lang.String...)
+
+Get List of Assignments
+--------------
+
+Calling the static [`getAssignments(String...)`][get-list-of-assignments] will return an iterable that will page through all of the assignments of the legal hold policy. It is possible to specify filters for type and id, maximum number of items per single response and fields to retrieve by calling [`getAssignments(String, String, int, String...)`][get-list-of-assignments-with-params].
+
+```java
+BoxLegalHold policy = new BoxLegalHold(api, id);
+Iterable<BoxLegalHoldAssignment.Info> assignments = policy.getAssignments(BoxResource.getResourceType(BoxFolder.class), null, 50, "assigned_at");
+for (BoxLegalHoldAssignment.Info assignmentInfo : assignments) {
+	// Do something with the legal hold policy assignment.
+}
+```
+
+[get-list-of-assignments]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#getAssignments(java.lang.String...)
+[get-list-of-assignments-with-params]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#getAssignments(java.lang.String,%20java.lang.String,%20int,%20java.lang.String...)
+
+Create New Assignment
+--------------
+
+Description [`method()`][link]
+
+```java
+example;
+```
+
+[link]: http://box.com
+
+Delete Assignment
+--------------
+
+Description [`method()`][link]
+
+```java
+example;
+```
+
+[link]: http://box.com
+
+Get File Version Legal Hold
+--------------
+
+Description [`method()`][link]
+
+```java
+example;
+```
+
+[link]: http://box.com
+
+Get List of File Version Legal Holds
+--------------
+
+Description [`method()`][link]
+
+```java
+example;
+```
+
+[link]: http://box.com
