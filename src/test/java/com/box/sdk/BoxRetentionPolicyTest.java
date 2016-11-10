@@ -188,6 +188,34 @@ public class BoxRetentionPolicyTest {
     }
 
     /**
+     * Unit test for {@link BoxRetentionPolicy#getAllAssignments(String...)}
+     */
+    @Test
+    @Category(UnitTest.class)
+    public void testGetAllAssignmentsSendsCorrectRequest() {
+        BoxAPIConnection api = new BoxAPIConnection("");
+        api.setRequestInterceptor(new RequestInterceptor() {
+            @Override
+            public BoxAPIResponse onRequest(BoxAPIRequest request) {
+                Assert.assertEquals(
+                        "https://api.box.com/2.0/retention_policies/0/assignments"
+                                + "?fields=assigned_by&limit=100",
+                        request.getUrl().toString());
+                return new BoxJSONResponse() {
+                    @Override
+                    public String getJSON() {
+                        return "{\"entries\": []}";
+                    }
+                };
+            }
+        });
+
+        BoxRetentionPolicy policy = new BoxRetentionPolicy(api, "0");
+        Iterator<BoxRetentionPolicyAssignment.Info> iterator = policy.getAllAssignments("assigned_by").iterator();
+        iterator.hasNext();
+    }
+
+    /**
      * Unit test for {@link BoxRetentionPolicy#getFolderAssignments(String...)}
      */
     @Test
