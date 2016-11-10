@@ -129,21 +129,35 @@ BoxRetentionPolicyAssignment.Info assignmentInfo = assignment.getInfo("assigned_
 Get File Version Retention
 --------------
 
-Description [`method()`][link]
+Calling [`getInfo(String...)`][get-file-version-retention] will return a BoxFileVersionRetention.Info object containing information about the file version retention policy.
 
 ```java
-example;
+BoxFileVersionRetention policy = new BoxFileVersionRetention(api, id);
+BoxFileVersionRetention.Info policyInfo = policy.getInfo();
 ```
 
-[link]: http://box.com
+[get-file-version-retention]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxFileVersionRetention.html#getInfo(java.lang.String...)
 
 Get File Version Retentions
 --------------
 
-Description [`method()`][link]
+To get an iterable with all file version retentions for current retention policy, call the static [`getAll(BoxAPIConnection, String...)`][get-all-file-version-retentions]. It is possible to add filters to query using [`QueryFilter`][query-filter] object as a parameter: [`getAll(BoxAPIConnection, QueryFilter, String...)`][get-all-file-version-retentions-with-filter].
 
 ```java
-example;
+BoxFileVersionRetention.QueryFilter filter = new BoxFileVersionRetention.QueryFilter()
+                .addFileID("0")
+                .addFileVersionID("1")
+                .addPolicyID("2")
+                .addDispositionAction(BoxRetentionPolicy.ACTION_PERMANENTLY_DELETE)
+                .addDispositionBefore(BoxDateFormat.parse("2016-09-15T13:15:35+0000"))
+                .addDispositionAfter(BoxDateFormat.parse("2014-09-15T13:15:35+0000"));
+Iterable<BoxFileVersionRetention.Info> retentions
+                = BoxFileVersionRetention.getRetentions(api, filter, "file", "applied_at");
+for (BoxFileVersionRetention.Info retentionInfo : retentions) {
+	// Do something with the file version retention.
+}
 ```
 
-[link]: http://box.com
+[get-all-file-version-retentions]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxFileVersionRetention.html#getInfo(com.box.sdk.BoxAPIConnection,%20java.lang.String...)
+[query-filter]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxFileVersionRetention.html#QueryFilter
+[get-all-file-version-retentions-with-filter]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxFileVersionRetention.html#getInfo(com.box.sdk.BoxAPIConnection,%20com.box.sdk.BoxFileVersionRetention.QueryFilter,%20java.lang.String...)
