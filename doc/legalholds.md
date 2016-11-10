@@ -22,7 +22,7 @@ Calling [`getInfo(String...)`][get-info] will return a BoxLegalHold.Info object 
 
 ```java
 BoxLegalHold policy = new BoxLegalHold(api, id);
-BoxLegalHold.Info policyINfo = policy.getInfo();
+BoxLegalHold.Info policyInfo = policy.getInfo();
 ```
 
 [get-info]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#getInfo(java.lang.String...)
@@ -62,7 +62,7 @@ Updating a legal hold policy's information is done by calling [`updateInfo(BoxLe
 
 ```java
 BoxLegalHold policy = new BoxLegalHold(api, id);
-BoxLegalHold.Info info = policy.new Info();
+BoxLegalHold.Info policyInfo = policy.new Info();
 info.addPendingChange("description", "new description");
 policy.updateInfo(info);
 ```
@@ -88,7 +88,7 @@ Calling [`getInfo(String...)`][get-assignment] will return a BoxLegalHoldAssignm
 
 ```java
 BoxLegalHoldAssignment assignment = new BoxLegalHoldAssignment(api, id);
-BoxLegalHoldAssignment.Info info = assignment.getInfo("assigned_by");
+BoxLegalHoldAssignment.Info assignmentInfo = assignment.getInfo("assigned_by");
 ```
 
 [get-assignment]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHoldAssignment.html#getInfo(java.lang.String...)
@@ -141,14 +141,14 @@ Calling [`getInfo(String...)`][get-file-version-legal-hold] will return a BoxFil
 
 ```java
 BoxFileVersionLegalHold hold = new BoxFileVersionLegalHold(api, id);
-hold.getInfo("file");
+BoxFileVersionLegalHold.Info holdInfo = hold.getInfo("file");
 ```
 
 [get-file-version-legal-hold]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxFileVersionLegalHold.html#getInfo(java.lang.String...)
 
 Get List of File Version Legal Holds
 --------------
-To get an iterable with all non-deleted file version legal holds for current legal hold policy, call [`getFileVersionHolds(String...)`][get-lest-of-file-version-legal-holds]. It is possible to specify maximum number of items per single response by calling [`getFileVersionHolds(int, String...)`][get-lest-of-file-version-legal-holds-with-limit].
+To get an iterable with all non-deleted file version legal holds for current legal hold policy, call [`getFileVersionHolds(String...)`][get-list-of-file-version-legal-holds]. It is possible to specify maximum number of items per single response by calling [`getFileVersionHolds(int, String...)`][get-list-of-file-version-legal-holds-with-limit].
 
 ```java
 BoxLegalHold policy = new BoxLegalHold(api, id);
@@ -158,5 +158,5 @@ for (BoxFileVersionLegalHold.Info fileVersionHold : fileVersionHolds) {
 }
 ```
 
-[get-lest-of-file-version-legal-holds]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#getFileVersionHolds(java.lang.String...)
-[get-lest-of-file-version-legal-holds-with-limit]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#getFileVersionHolds(int,%20java.lang.String...)
+[get-list-of-file-version-legal-holds]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#getFileVersionHolds(java.lang.String...)
+[get-list-of-file-version-legal-holds-with-limit]: http://opensource.box.com/box-java-sdk/javadoc/com/box/sdk/BoxLegalHold.html#getFileVersionHolds(int,%20java.lang.String...)
