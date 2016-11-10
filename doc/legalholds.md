@@ -96,7 +96,7 @@ BoxLegalHoldAssignment.Info info = assignment.getInfo("assigned_by");
 Get List of Assignments
 --------------
 
-Calling the static [`getAssignments(String...)`][get-list-of-assignments] will return an iterable that will page through all of the assignments of the legal hold policy. It is possible to specify filters for type and id, maximum number of items per single response and fields to retrieve by calling [`getAssignments(String, String, int, String...)`][get-list-of-assignments-with-params].
+Calling [`getAssignments(String...)`][get-list-of-assignments] will return an iterable that will page through all of the assignments of the legal hold policy. It is possible to specify filters for type and id, maximum number of items per single response and fields to retrieve by calling [`getAssignments(String, String, int, String...)`][get-list-of-assignments-with-params].
 
 ```java
 BoxLegalHold policy = new BoxLegalHold(api, id);
